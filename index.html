@@ -3,78 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Our Wedding RSVP</title>
+    <title>Wedding RSVP</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f9f6f2; color: #4a4a4a; display: flex; justify-content: center; padding: 40px 20px; }
-        .card { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 400px; width: 100%; text-align: center; }
-        h1 { font-family: 'Georgia', serif; font-weight: normal; color: #8d775f; }
-        .hidden { display: none; }
-        select, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
-        button { background: #8d775f; color: white; border: none; padding: 15px 30px; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 10px; }
-        button:hover { background: #76634f; }
-        #loading { font-style: italic; color: #999; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f1ee; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .card { background: white; padding: 2.5rem; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); width: 100%; max-width: 450px; text-align: center; }
+        h1 { color: #4a4a4a; font-family: 'Georgia', serif; margin-bottom: 0.5rem; }
+        p { color: #666; line-height: 1.5; }
+        
+        .deadline-text { font-size: 0.9rem; color: #8b7d6b; margin-bottom: 20px; font-style: italic; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        
+        label { display: block; text-align: left; margin: 15px 0 5px; font-weight: 600; color: #444; font-size: 0.9rem; }
+        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
+        
+        #add-guest-btn { background: #fff; border: 2px dashed #8b7d6b; color: #8b7d6b; padding: 10px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 10px 0; transition: all 0.3s; }
+        #add-guest-btn:hover { background: #fdfaf7; border-color: #6f6354; color: #6f6354; }
+        
+        #plus-one-container { background: #fafafa; border: 1px solid #eee; padding: 15px; border-radius: 10px; margin-bottom: 15px; display: none; text-align: left; }
+        
+        #submit-btn { background-color: #8b7d6b; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; cursor: pointer; font-size: 1.1rem; margin-top: 20px; transition: background 0.3s; }
+        #submit-btn:hover { background-color: #6f6354; }
+        #submit-btn:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        .hidden { display: none !important; }
+        #error-msg { color: #b22222; background: #fff0f0; padding: 10px; border-radius: 5px; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <div id="loading">Checking your invitation...</div>
-    
-    <div id="content" class="hidden">
-    <h2 id="welcome-msg"></h2>
-    
-    <input type="hidden" id="guest-name-input">
-
-    <label for="attending-select">Will you be attending?</label>
-    <select id="attending-select">
-        <option value="Yes">Yes, I'll be there!</option>
-        <option value="No">Regretfully, no</option>
-    </select>
-
-    <div id="plus-one-area" style="margin: 15px 0;">
-        <button type="button" id="add-guest-btn" style="display:none;" onclick="showPlusOne()">+ Add a Guest</button>
-        
-        <div id="plus-one-input-container" style="display:none; border-left: 3px solid #ccc; padding-left: 10px;">
-            <label for="plus-one-name">Guest's Full Name:</label>
-            <input type="text" id="plus-one-name" placeholder="Enter guest name">
-        </div>
+<div class="card" id="main-card">
+    <div id="deadline-notice" class="deadline-text">
+        Please RSVP by: <span id="deadline-date" style="font-weight: bold;"></span>
     </div>
 
-    <label for="note-input">Message for the couple (optional):</label>
-    <textarea id="note-input" placeholder="Dietary requirements, song requests, etc."></textarea>
-
-    <button id="submit-btn" onclick="submitRSVP()">Send RSVP</button>
-    </div>
-
+    <div id="loading">Gathering your invitation details...</div>
+    
     <div id="error-msg" class="hidden">
-        <h1>Oops!</h1>
-        <p>We couldn't find your invitation. Please check the link on your invite.</p>
+        We couldn't find an invitation for this link. Please double-check your invite or contact us!
+    </div>
+
+    <div id="content" class="hidden">
+        <h1 id="welcome-msg">Welcome</h1>
+        <p>We are so excited to celebrate with you!</p>
+        
+        <input type="hidden" id="guest-name-input">
+
+        <label for="attending-select">Will you be attending?</label>
+        <select id="attending-select">
+            <option value="Yes">Yes, with pleasure!</option>
+            <option value="No">Regretfully, no</option>
+        </select>
+
+        <button type="button" id="add-guest-btn" style="display: none;" onclick="showPlusOne()">+ Add a Guest</button>
+        
+        <div id="plus-one-container">
+            <label for="plus-one-name">Plus One's Name:</label>
+            <input type="text" id="plus-one-name" placeholder="First and Last Name">
+        </div>
+
+        <label for="note-input">Special Notes:</label>
+        <textarea id="note-input" rows="3" placeholder="Dietary restrictions, song requests, or a message for the couple..."></textarea>
+
+        <button id="submit-btn" onclick="submitRSVP()">Confirm RSVP</button>
     </div>
 </div>
 
 <script>
+    // --- CONFIGURATION ---
     const webAppUrl = "https://script.google.com/macros/s/AKfycbwdxWDsJkVy6EZBa6VHKGRltMrk1SFX3Qe1ac8MRvt3F6wYTQANIlzty2FNjkIeuO9k/exec"; 
+    const RSVP_DEADLINE = new Date(2027, 9, 6, 23, 59, 59); // Oct 6, 2027
+
+    // --- INITIALIZATION ---
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('id');
+    const today = new Date();
 
     const loadingDiv = document.getElementById('loading');
     const contentDiv = document.getElementById('content');
+    const deadlineSpan = document.getElementById('deadline-date');
+    const guestNameField = document.getElementById('guest-name-input');
 
-    if (token) {
+    // Set Date String
+    deadlineSpan.innerText = RSVP_DEADLINE.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+    // 1. Check Deadline First
+    if (today > RSVP_DEADLINE) {
+        loadingDiv.classList.add('hidden');
+        document.getElementById('deadline-notice').classList.add('hidden');
+        document.getElementById('main-card').innerHTML = `
+            <h1>RSVP Period Closed</h1>
+            <p>The deadline to RSVP was ${deadlineSpan.innerText}.</p>
+            <p>Please contact us directly if you still need to update your response!</p>
+        `;
+    } 
+    // 2. Check for Token
+    else if (!token) {
+        loadingDiv.innerHTML = "<strong>No invitation code found.</strong><p>Please use the link sent to you by the couple.</p>";
+    } 
+    // 3. Fetch Guest Data
+    else {
         fetch(webAppUrl + "?id=" + encodeURIComponent(token))
             .then(res => res.json())
             .then(data => {
                 loadingDiv.classList.add('hidden');
 
                 if (data.name) {
-                    if (data.isDone) {
-                        document.querySelector('.card').innerHTML = "<h1>Already Sent!</h1><p>Hi " + data.name + ", we've already received your response.</p>";
+                    if (data.isDone === true) {
+                        document.getElementById('main-card').innerHTML = `
+                            <h1>Thank You!</h1>
+                            <p>Hi ${data.name}, we have already received your RSVP.</p>
+                            <p>We can't wait to see you!</p>
+                        `;
                     } else {
                         document.getElementById('welcome-msg').innerText = "Welcome, " + data.name + "!";
-                        document.getElementById('guest-name-input').value = data.name;
-                        
-                        // Check if Column C said "Yes"
-                        if (data.allowPlusOne) {
+                        guestNameField.value = data.name;
+
+                        // Show Plus One if allowed in Column C
+                        if (data.allowPlusOne === true || data.allowPlusOne === "true") {
                             document.getElementById('add-guest-btn').style.display = 'block';
                         }
                         
@@ -83,22 +127,27 @@
                 } else {
                     document.getElementById('error-msg').classList.remove('hidden');
                 }
+            })
+            .catch(err => {
+                loadingDiv.innerHTML = "<strong>Connection Error</strong><p>Please refresh the page and try again.</p>";
+                console.error(err);
             });
     }
 
+    // --- FUNCTIONS ---
     function showPlusOne() {
-        document.getElementById('plus-one-input-container').style.display = 'block';
+        document.getElementById('plus-one-container').style.display = 'block';
         document.getElementById('add-guest-btn').style.display = 'none';
     }
 
     function submitRSVP() {
         const btn = document.getElementById('submit-btn');
-        btn.innerText = "Sending...";
+        btn.innerText = "Saving...";
         btn.disabled = true;
 
         const payload = {
             token: token,
-            name: document.getElementById('guest-name-input').value,
+            name: guestNameField.value,
             plusOneName: document.getElementById('plus-one-name').value || "None",
             attending: document.getElementById('attending-select').value,
             note: document.getElementById('note-input').value
@@ -109,7 +158,17 @@
             mode: "no-cors",
             body: JSON.stringify(payload)
         }).then(() => {
-            document.querySelector('.card').innerHTML = "<h1>Thank you!</h1><p>Your RSVP has been saved.</p>";
+            document.getElementById('main-card').innerHTML = `
+                <h1>Response Saved!</h1>
+                <p>Thank you, ${payload.name}. Your RSVP has been successfully recorded.</p>
+            `;
+        }).catch(err => {
+            alert("Oops! Something went wrong. Please try again.");
+            btn.innerText = "Confirm RSVP";
+            btn.disabled = false;
         });
     }
 </script>
+
+</body>
+</html>
