@@ -47,12 +47,12 @@
 </div>
 
 <script>
-    // 1. REPLACE THIS URL with your Google Web App URL
+    // 1. CONFIGURATION - Ensure this is your latest 'Exec' URL from Google
     const webAppUrl = "https://script.google.com/macros/s/AKfycbwdxWDsJkVy6EZBa6VHKGRltMrk1SFX3Qe1ac8MRvt3F6wYTQANIlzty2FNjkIeuO9k/exec"; 
     
-    // 2. Get the token from the URL
-    const url = new URL(window.location.href);
-    const token = url.searchParams.get("id");
+    // 2. Extract Token from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('id');
 
     const loadingDiv = document.getElementById('loading');
     const contentDiv = document.getElementById('content');
@@ -61,30 +61,35 @@
     if (!token) {
         loadingDiv.innerText = "No invitation code found in the link.";
     } else {
-        // 3. Fetch from Google
-        // We add a timestamp to the URL to prevent the browser from "caching" old data
-        fetch(webAppUrl + "?id=" + token + "&nocache=" + new Date().getTime())
-            .then(response => response.json())
+        // 3. FETCH NAME FROM GOOGLE
+        fetch(webAppUrl + "?id=" + token)
+            .then(res => res.json())
             .then(data => {
-                console.log("Success:", data);
+                loadingDiv.classList.add('hidden');
+
                 if (data.name) {
-                    // Hide loading, show content
-                    loadingDiv.style.display = 'none';
+                    // --- PREVENT DUPLICATES: Check if browser remembers a previous RSVP ---
+                    if (localStorage.getItem("rsvp_done_" + token)) {
+                        document.querySelector('.card').innerHTML = 
+                            "<h1>Already Sent!</h1><p>Hi " + data.name + ", we've already received your RSVP. Thank you!</p>";
+                        return; // Stop the code here
+                    }
+                    // ----------------------------------------------------------------------
+
                     document.getElementById('welcome-msg').innerText = "Welcome, " + data.name + "!";
                     document.getElementById('guest-name-input').value = data.name;
                     contentDiv.classList.remove('hidden');
                 } else {
-                    // This happens if name is null
-                    loadingDiv.style.display = 'none';
                     errorDiv.classList.remove('hidden');
                 }
             })
-            .catch(error => {
-                console.error("Error:", error);
-                loadingDiv.innerText = "Connection error. Please try refreshing the page.";
+            .catch(err => {
+                console.error("Fetch error:", err);
+                loadingDiv.innerText = "Connection error. Please refresh.";
             });
     }
 
+    // 4. SUBMIT RSVP TO GOOGLE
     function submitRSVP() {
         const btn = document.getElementById('submit-btn');
         btn.innerText = "Sending...";
@@ -102,7 +107,12 @@
             mode: "no-cors", 
             body: JSON.stringify(payload)
         }).then(() => {
-            document.querySelector('.card').innerHTML = "<h1>Thank you!</h1><p>Your response for " + payload.name + " has been saved.</p>";
+            // --- PREVENT DUPLICATES: Mark this token as 'done' in this browser ---
+            localStorage.setItem("rsvp_done_" + token, "true");
+            // ----------------------------------------------------------------------
+
+            document.querySelector('.card').innerHTML = 
+                "<h1>Thank you!</h1><p>Your response for " + payload.name + " has been saved.</p>";
         }).catch(err => {
             alert("Error sending RSVP. Please try again.");
             btn.innerText = "Send RSVP";
