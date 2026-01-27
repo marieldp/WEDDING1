@@ -132,10 +132,35 @@
             note: document.getElementById('note-input').value
         };
 
-        fetch(webAppUrl, {
-            method: "POST",
-            mode: "no-cors",
-            body: JSON.stringify(payload)
+        fetch(webAppUrl + "?id=" + encodeURIComponent(token))
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('loading').classList.add('hidden');
+            
+            // DEBUG: This will pop up a window. Tell me what it says!
+            // alert("Debug: allowPlusOne is " + data.allowPlusOne);
+
+            if (data.name) {
+                if (data.isDone === true) {
+                    document.getElementById('content').innerHTML = `<h1>Thank You!</h1><p>Hi ${data.name}, we have your RSVP!</p>`;
+                } else {
+                    document.getElementById('welcome-msg').innerText = "Welcome, " + data.name + "!";
+                    document.getElementById('guest-name-input').value = data.name;
+                    
+                    // The "Hammer" Logic: If it looks like true, it IS true.
+                    let rawValue = String(data.allowPlusOne).toLowerCase().trim();
+                    if (rawValue === "true" || rawValue === "yes" || data.allowPlusOne === true) {
+                        window.canHavePlusOne = true;
+                    } else {
+                        window.canHavePlusOne = false;
+                    }
+                    
+                    togglePlusOneVisibility();
+                }
+                document.getElementById('content').classList.remove('hidden');
+            } else {
+                document.getElementById('error-msg').classList.remove('hidden');
+            }
         });
 
         setTimeout(() => {
