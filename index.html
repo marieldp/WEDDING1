@@ -21,23 +21,29 @@
     <div id="loading">Checking your invitation...</div>
     
     <div id="content" class="hidden">
-        <h1 id="welcome-msg">Welcome!</h1>
-        <p>Please let us know if you can make it.</p>
+    <h2 id="welcome-msg"></h2>
+    
+    <input type="hidden" id="guest-name-input">
+
+    <label for="attending-select">Will you be attending?</label>
+    <select id="attending-select">
+        <option value="Yes">Yes, I'll be there!</option>
+        <option value="No">Regretfully, no</option>
+    </select>
+
+    <div id="plus-one-area" style="margin: 15px 0;">
+        <button type="button" id="add-guest-btn" style="display:none;" onclick="showPlusOne()">+ Add a Guest</button>
         
-        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+        <div id="plus-one-input-container" style="display:none; border-left: 3px solid #ccc; padding-left: 10px;">
+            <label for="plus-one-name">Guest's Full Name:</label>
+            <input type="text" id="plus-one-name" placeholder="Enter guest name">
+        </div>
+    </div>
 
-        <label for="attending-select">Will you attend?</label>
-        <select id="attending-select">
-            <option value="Yes">Joyfully Accepts</option>
-            <option value="No">Regretfully Declines</option>
-        </select>
+    <label for="note-input">Message for the couple (optional):</label>
+    <textarea id="note-input" placeholder="Dietary requirements, song requests, etc."></textarea>
 
-        <label for="note-input">Dietary requirements or a message for us:</label>
-        <textarea id="note-input" rows="3" placeholder="Optional"></textarea>
-
-        <input type="hidden" id="guest-name-input">
-        
-        <button onclick="submitRSVP()" id="submit-btn">Send RSVP</button>
+    <button id="submit-btn" onclick="submitRSVP()">Send RSVP</button>
     </div>
 
     <div id="error-msg" class="hidden">
@@ -47,73 +53,63 @@
 </div>
 
 <script>
-    // 1. MUST BE THE URL FROM YOUR LATEST "NEW DEPLOYMENT"
-    const webAppUrl = "https://script.google.com/macros/s/AKfycbwdxWDsJkVy6EZBa6VHKGRltMrk1SFX3Qe1ac8MRvt3F6wYTQANIlzty2FNjkIeuO9k/exec"; 
-    
+    const webAppUrl = "YOUR_NEW_DEPLOYMENT_URL_HERE"; 
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('id');
 
     const loadingDiv = document.getElementById('loading');
     const contentDiv = document.getElementById('content');
-    const errorDiv = document.getElementById('error-msg');
 
-    if (!token) {
-        loadingDiv.innerText = "No invitation code found in the link.";
-    } else {
-        // We use the full URL with the token attached
-        const finalUrl = webAppUrl + "?id=" + encodeURIComponent(token);
-
-        fetch(finalUrl)
-            .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.json();
-            })
+    if (token) {
+        fetch(webAppUrl + "?id=" + encodeURIComponent(token))
+            .then(res => res.json())
             .then(data => {
-                loadingDiv.style.display = 'none';
+                loadingDiv.classList.add('hidden');
 
                 if (data.name) {
-                    if (data.isDone === true) {
-                        // The "Database Check" worked!
-                        document.querySelector('.card').innerHTML = 
-                            "<h1>Already Responded</h1><p>Hi " + data.name + ", we have already received your RSVP. Thank you!</p>";
+                    if (data.isDone) {
+                        document.querySelector('.card').innerHTML = "<h1>Already Sent!</h1><p>Hi " + data.name + ", we've already received your response.</p>";
                     } else {
-                        // Success - show the form
                         document.getElementById('welcome-msg').innerText = "Welcome, " + data.name + "!";
                         document.getElementById('guest-name-input').value = data.name;
+                        
+                        // Check if Column C said "Yes"
+                        if (data.allowPlusOne) {
+                            document.getElementById('add-guest-btn').style.display = 'block';
+                        }
+                        
                         contentDiv.classList.remove('hidden');
                     }
                 } else {
-                    errorDiv.classList.remove('hidden');
+                    document.getElementById('error-msg').classList.remove('hidden');
                 }
-            })
-            .catch(err => {
-                console.error("Connection Error:", err);
-                loadingDiv.innerText = "Connection error. Please refresh the page.";
             });
     }
 
-function submitRSVP() {
-    const btn = document.getElementById('submit-btn');
-    btn.innerText = "Sending...";
-    btn.disabled = true;
+    function showPlusOne() {
+        document.getElementById('plus-one-input-container').style.display = 'block';
+        document.getElementById('add-guest-btn').style.display = 'none';
+    }
 
-    // Grab the value from the plus-one input field
-    const p1Name = document.getElementById('plus-one-name') ? document.getElementById('plus-one-name').value : "";
+    function submitRSVP() {
+        const btn = document.getElementById('submit-btn');
+        btn.innerText = "Sending...";
+        btn.disabled = true;
 
-    const payload = {
-        token: token,
-        name: document.getElementById('guest-name-input').value,
-        plusOneName: p1Name,
-        attending: document.getElementById('attending-select').value,
-        note: document.getElementById('note-input').value
-    };
+        const payload = {
+            token: token,
+            name: document.getElementById('guest-name-input').value,
+            plusOneName: document.getElementById('plus-one-name').value || "None",
+            attending: document.getElementById('attending-select').value,
+            note: document.getElementById('note-input').value
+        };
 
-    fetch(webAppUrl, {
-        method: "POST",
-        mode: "no-cors", 
-        body: JSON.stringify(payload)
-    }).then(() => {
-        document.querySelector('.card').innerHTML = "<h1>Thank you!</h1><p>Your response has been saved.</p>";
-    });
-}
+        fetch(webAppUrl, {
+            method: "POST",
+            mode: "no-cors",
+            body: JSON.stringify(payload)
+        }).then(() => {
+            document.querySelector('.card').innerHTML = "<h1>Thank you!</h1><p>Your RSVP has been saved.</p>";
+        });
+    }
 </script>
