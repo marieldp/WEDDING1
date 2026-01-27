@@ -47,7 +47,7 @@
 </div>
 
 <script>
-    // 1. MAKE SURE THIS IS YOUR LATEST URL FROM THE "NEW DEPLOYMENT"
+    // 1. MUST BE THE URL FROM YOUR LATEST "NEW DEPLOYMENT"
     const webAppUrl = "YOUR_NEW_WEB_APP_URL_HERE"; 
     
     const urlParams = new URLSearchParams(window.location.search);
@@ -58,30 +58,31 @@
     const errorDiv = document.getElementById('error-msg');
 
     if (!token) {
-        loadingDiv.innerText = "No invitation code found.";
+        loadingDiv.innerText = "No invitation code found in the link.";
     } else {
-        // We fetch the data from your updated Google Script
-        fetch(webAppUrl + "?id=" + token)
-            .then(res => {
-                if (!res.ok) throw new Error('Network response was not ok');
-                return res.json();
+        // We use the full URL with the token attached
+        const finalUrl = webAppUrl + "?id=" + encodeURIComponent(token);
+
+        fetch(finalUrl)
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
             })
             .then(data => {
-                loadingDiv.classList.add('hidden');
+                loadingDiv.style.display = 'none';
 
                 if (data.name) {
-                    // This is the new part: Checking the "isDone" from the sheet
                     if (data.isDone === true) {
+                        // The "Database Check" worked!
                         document.querySelector('.card').innerHTML = 
                             "<h1>Already Responded</h1><p>Hi " + data.name + ", we have already received your RSVP. Thank you!</p>";
                     } else {
-                        // Guest is found and hasn't responded yet
+                        // Success - show the form
                         document.getElementById('welcome-msg').innerText = "Welcome, " + data.name + "!";
                         document.getElementById('guest-name-input').value = data.name;
                         contentDiv.classList.remove('hidden');
                     }
                 } else {
-                    // Name was null
                     errorDiv.classList.remove('hidden');
                 }
             })
@@ -91,7 +92,6 @@
             });
     }
 
-    // Your submit function (no changes needed here)
     function submitRSVP() {
         const btn = document.getElementById('submit-btn');
         btn.innerText = "Sending...";
@@ -104,14 +104,17 @@
             note: document.getElementById('note-input').value
         };
 
+        // Note: We use no-cors for the POST to bypass Google's redirect security
         fetch(webAppUrl, {
             method: "POST",
             mode: "no-cors", 
             body: JSON.stringify(payload)
         }).then(() => {
-            document.querySelector('.card').innerHTML = "<h1>Thank you!</h1><p>Your response for " + payload.name + " has been saved.</p>";
+            document.querySelector('.card').innerHTML = 
+                "<h1>Thank you!</h1><p>Your response for " + payload.name + " has been saved.</p>";
         }).catch(err => {
-            alert("Error sending RSVP.");
+            alert("Error sending RSVP. Please try again.");
+            btn.innerText = "Send RSVP";
             btn.disabled = false;
         });
     }
