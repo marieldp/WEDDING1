@@ -21,9 +21,7 @@
 <body>
 
 <div class="card" id="main-card">
-    <div id="deadline-notice" class="deadline-text">
-        Please RSVP by: <span id="deadline-date" style="font-weight: bold;"></span>
-    </div>
+    <div class="deadline-text">Please RSVP by: <b>October 6, 2027</b></div>
 
     <div id="loading">Gathering your invitation details...</div>
     
@@ -35,7 +33,6 @@
     <div id="content" class="hidden">
         <h1 id="welcome-msg">Welcome</h1>
         <p>We are so excited to celebrate with you!</p>
-        
         <input type="hidden" id="guest-name-input">
 
         <label for="attending-select">Will you be attending?</label>
@@ -51,62 +48,48 @@
             <input type="text" id="plus-one-name" placeholder="First and Last Name">
         </div>
 
-        <label for="guest-email">Email Address (for confirmation):</label>
+        <label for="guest-email">Email Address:</label>
         <input type="email" id="guest-email" placeholder="email@example.com" required>
 
         <label for="note-input">Special Notes:</label>
-        <textarea id="note-input" rows="3" placeholder="Dietary restrictions, song requests, etc."></textarea>
+        <textarea id="note-input" rows="3"></textarea>
 
         <button id="submit-btn" onclick="submitRSVP()">Confirm RSVP</button>
     </div>
 </div>
 
 <script>
-    const webAppUrl = "https://script.google.com/macros/s/AKfycbzcT83i9I7SyRxVxFi0JVoNSfOAGSyj7PyWHX54o1IYZ3KqT4oIzV7wRPoQ6w6oXReq/exec"; 
-    const RSVP_DEADLINE = new Date(2027, 9, 6, 23, 59, 59);
-
+    const webAppUrl = "YOUR_NEW_DEPLOYMENT_URL_HERE"; 
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('id');
-    const today = new Date();
 
-    const loadingDiv = document.getElementById('loading');
-    const contentDiv = document.getElementById('content');
-    const deadlineSpan = document.getElementById('deadline-date');
-    
-    let canHavePlusOne = false;
+    // Make this global
+    window.canHavePlusOne = false;
 
-    deadlineSpan.innerText = RSVP_DEADLINE.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-
-    if (today > RSVP_DEADLINE) {
-        loadingDiv.classList.add('hidden');
-        document.getElementById('deadline-notice').classList.add('hidden');
-        document.getElementById('main-card').innerHTML += `<h1>RSVP Closed</h1><p>The deadline has passed.</p>`;
-    } 
-    else if (!token) {
-        loadingDiv.innerHTML = "<strong>No invitation code found.</strong>";
-    } 
-    else {
+    if (!token) {
+        document.getElementById('loading').innerHTML = "Invalid Link.";
+    } else {
         fetch(webAppUrl + "?id=" + encodeURIComponent(token))
             .then(res => res.json())
             .then(data => {
-                loadingDiv.classList.add('hidden');
+                document.getElementById('loading').classList.add('hidden');
                 if (data.name) {
                     if (data.isDone === true) {
-                        contentDiv.innerHTML = `<h1>Thank You!</h1><p>Hi ${data.name}, we already have your RSVP!</p>`;
-                        contentDiv.classList.remove('hidden');
+                        document.getElementById('content').innerHTML = `<h1>Thank You!</h1><p>Hi ${data.name}, we have your RSVP!</p>`;
                     } else {
                         document.getElementById('welcome-msg').innerText = "Welcome, " + data.name + "!";
                         document.getElementById('guest-name-input').value = data.name;
-                        canHavePlusOne = (data.allowPlusOne === true || data.allowPlusOne === "true");
+                        
+                        // Set the plus one permission
+                        window.canHavePlusOne = (data.allowPlusOne === true || data.allowPlusOne === "true" || data.allowPlusOne === "TRUE");
+                        
+                        // Check visibility immediately
                         togglePlusOneVisibility();
-                        contentDiv.classList.remove('hidden');
                     }
+                    document.getElementById('content').classList.remove('hidden');
                 } else {
                     document.getElementById('error-msg').classList.remove('hidden');
                 }
-            })
-            .catch(err => {
-                loadingDiv.innerHTML = "<strong>Connection Error</strong>";
             });
     }
 
@@ -115,12 +98,12 @@
         const btn = document.getElementById('add-guest-btn');
         const container = document.getElementById('plus-one-container');
 
-        if (isAttending && canHavePlusOne) {
+        if (isAttending && window.canHavePlusOne) {
             btn.style.display = 'block';
         } else {
             btn.style.display = 'none';
             container.style.display = 'none';
-            document.getElementById('plus-one-name').value = "";
+            document.getElementById('plus-one-name').value = ""; 
         }
     }
 
@@ -132,7 +115,7 @@
     function submitRSVP() {
         const emailInput = document.getElementById('guest-email');
         if (!emailInput.checkValidity()) {
-            alert("Please provide a valid email address.");
+            alert("Please enter a valid email.");
             return;
         }
 
@@ -157,10 +140,9 @@
 
         setTimeout(() => {
             const isAttending = payload.attending === "Yes";
-            contentDiv.innerHTML = `
-                <h1>${isAttending ? "We'll see you there!" : "We'll miss you!"}</h1>
-                <p>Thank you, ${payload.name}. Your response has been recorded.</p>
-                <p style="font-size: 0.9rem; color: #8b7d6b;">Confirmation sent to: ${payload.email}</p>
+            document.getElementById('content').innerHTML = `
+                <h1>${isAttending ? "See you there!" : "We'll miss you!"}</h1>
+                <p>Thank you, ${payload.name}. Your response is saved.</p>
             `;
         }, 1500);
     }
