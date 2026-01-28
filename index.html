@@ -146,12 +146,19 @@
         window.canHavePlusOne = false;
 
         function openInvitation() {
-            document.getElementById('envelope-wrapper').classList.add('open');
-            document.body.classList.add('show-site');
-            document.body.style.overflow = 'auto'; // Allow scrolling
-            
-            if (token) { checkGuestStatus(); }
-        }
+    // 1. Start the animations
+    document.getElementById('envelope-wrapper').classList.add('open');
+    document.body.classList.add('show-site');
+    document.body.style.overflow = 'auto'; 
+
+    // 2. ONLY NOW check the guest status
+    if (token) { 
+        console.log("Token found, fetching data...");
+        checkGuestStatus(); 
+    } else {
+        document.getElementById('loading').innerHTML = "No invitation link detected.";
+    }
+}
 
         function checkGuestStatus() {
             fetch(`${webAppUrl}?id=${encodeURIComponent(token)}`)
