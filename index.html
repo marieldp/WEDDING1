@@ -60,70 +60,118 @@
 </div>
 
 <script>
-    // 1. CONFIGURATION
     const webAppUrl = "https://script.google.com/macros/s/AKfycbxSOFOrMKvOsPcIvFDnfpM8Hpcb0CCkF_P5WEIAwxRtnnqux1h6xU2tORdHCi2zfzSJ/exec"; 
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('id');
-
-    // Global variable for permission
     window.canHavePlusOne = false;
 
-    // 2. INITIAL LOAD & CHECK STATUS
+    // --- DEADLINE SETTINGS ---
+    const deadlineDate = new Date('2027-10-06T23:59:59'); // October 6, 2027
+    const today = new Date();
+    const isPastDeadline = today > deadlineDate;
+
     if (!token) {
-        document.getElementById('loading').innerHTML = "Invalid Link. Please use the link provided in your invite.";
+        document.getElementById('loading').innerHTML = "Invalid Link.";
     } else {
         fetch(`${webAppUrl}?id=${encodeURIComponent(token)}`)
             .then(res => res.json())
             .then(data => {
                 document.getElementById('loading').classList.add('hidden');
-
                 if (data.name) {
-                    // CHECK IF GUEST ALREADY RESPONDED
-                    if (data.isDone === true) {
-                        document.getElementById('content').innerHTML = `
-                            <div style="padding: 20px;">
-                                <h1 style="font-size: 2rem;">Thank You!</h1>
-                                <p>Hi ${data.name}, we've already received your RSVP.</p>
-                                <p>We can't wait to celebrate with you!</p>
-                            </div>
-                        `;
-                        document.getElementById('content').classList.remove('hidden');
-                        return; 
-                    }
-
-                    // IF NOT DONE, LOAD THE FORM
-                    document.getElementById('welcome-msg').innerText = "Welcome, " + data.name + "!";
                     document.getElementById('guest-name-input').value = data.name;
-                    
                     let pOne = String(data.allowPlusOne).toUpperCase().trim();
                     window.canHavePlusOne = (pOne === "TRUE" || pOne === "YES");
-                    
-                    document.getElementById('content').classList.remove('hidden');
-                    togglePlusOneVisibility();
+
+                    if (data.isDone === true) {
+                        // --- ALREADY RESPONDED VIEW ---
+                        let responseHtml = `
+                            <div id="already-done-container">
+                                <h1>Hi ${data.name}!</h1>
+                                <p>We've already received your RSVP. Thank you!</p>
+                                <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                        `;
+
+                        if (isPastDeadline) {
+                            // If past deadline, show contact message instead of edit button
+                            responseHtml += `
+                                <p style="font-size: 0.9rem; color: #b22222; font-weight: bold;">
+                                    The RSVP deadline was Oct 6.
+                                </p>
+                                <p style="font-size: 0.9rem; color: #666;">
+                                    If you need to change your details, please contact us personally.
+                                </p>
+                            `;
+                        } else {
+                            // If before deadline, allow editing
+                            responseHtml += `
+                                <p style="font-size: 0.9rem; color: #8b7d6b;">Change of mind?</p>
+                                <button onclick="resetFormForEdit()" style="background: none; border: 1px solid #8b7d6b; color: #8b7d6b; padding: 10px 20px; border-radius: 8px; cursor: pointer;">
+                                    Edit my RSVP
+                                </button>
+                            `;
+                        }
+
+                        responseHtml += `</div>`;
+                        document.getElementById('content').innerHTML = responseHtml;
+                        document.getElementById('content').classList.remove('hidden');
+                    } else {
+                        // --- NEW RSVP VIEW ---
+                        if (isPastDeadline) {
+                            document.getElementById('content').innerHTML = `
+                                <h1>RSVP Closed</h1>
+                                <p>Hi ${data.name}, the deadline to RSVP (Oct 6) has passed.</p>
+                                <p>Please reach out to the couple directly for any updates.</p>
+                            `;
+                            document.getElementById('content').classList.remove('hidden');
+                        } else {
+                            showMainForm(data.name);
+                        }
+                    }
                 } else {
                     document.getElementById('error-msg').classList.remove('hidden');
                 }
-            })
-            .catch(err => {
-                console.error("Fetch error:", err);
-                document.getElementById('loading').innerHTML = "Error loading. Please refresh.";
             });
     }
 
-    // 3. UI TOGGLE FUNCTIONS
+    function showMainForm(name) {
+        document.getElementById('welcome-msg').innerText = "Welcome, " + name + "!";
+        document.getElementById('content').classList.remove('hidden');
+        togglePlusOneVisibility();
+    }
+
+    function resetFormForEdit() {
+        const name = document.getElementById('guest-name-input').value;
+        document.getElementById('content').innerHTML = `
+            <h1 id="welcome-msg">Welcome, ${name}!</h1>
+            <p>Update your details below:</p>
+            <label>Will you be attending?</label>
+            <select id="attending-select" onchange="togglePlusOneVisibility()">
+                <option value="Yes">Yes, with pleasure!</option>
+                <option value="No">Regretfully, no</option>
+            </select>
+            <button type="button" id="add-guest-btn" onclick="showPlusOne()">+ Add a Guest</button>
+            <div id="plus-one-container">
+                <label>Plus One's Name:</label>
+                <input type="text" id="plus-one-name" placeholder="First and Last Name">
+            </div>
+            <label>Email Address (Optional):</label>
+            <input type="email" id="guest-email" placeholder="email@example.com">
+            <label>Special Notes:</label>
+            <textarea id="note-input" rows="3"></textarea>
+            <button id="submit-btn" onclick="submitRSVP()">Update RSVP</button>
+        `;
+        togglePlusOneVisibility();
+    }
+
     function togglePlusOneVisibility() {
         const isAttending = document.getElementById('attending-select').value === "Yes";
         const btn = document.getElementById('add-guest-btn');
         const container = document.getElementById('plus-one-container');
-
         if (isAttending && window.canHavePlusOne === true) {
-            if (container.style.display !== 'block') {
-                btn.style.display = 'block';
-            }
+            if (container.style.display !== 'block') btn.style.display = 'block';
         } else {
             btn.style.display = 'none';
             container.style.display = 'none';
-            document.getElementById('plus-one-name').value = ""; 
         }
     }
 
@@ -132,50 +180,24 @@
         document.getElementById('add-guest-btn').style.display = 'none';
     }
 
-    // 4. SUBMIT RSVP DATA (UPDATED FOR OPTIONAL EMAIL)
     function submitRSVP() {
-        const emailInput = document.getElementById('guest-email');
-        const emailValue = emailInput.value.trim();
-
-        // Only validate if they actually typed something
-        if (emailValue !== "" && !emailInput.checkValidity()) {
-            alert("Please enter a valid email address or leave it blank.");
-            return;
-        }
-
         const btn = document.getElementById('submit-btn');
-        btn.innerText = "Saving...";
+        btn.innerText = "Updating...";
         btn.disabled = true;
 
         const payload = {
             token: token,
             name: document.getElementById('guest-name-input').value,
-            email: emailValue || "No email provided", // Default text if blank
+            email: document.getElementById('guest-email').value || "No email provided",
             plusOneName: document.getElementById('plus-one-name').value || "None",
             attending: document.getElementById('attending-select').value,
             note: document.getElementById('note-input').value
         };
 
-        fetch(webAppUrl, {
-            method: "POST",
-            mode: "no-cors",
-            body: JSON.stringify(payload)
-        });
+        fetch(webAppUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
 
         setTimeout(() => {
-            const isAttending = payload.attending === "Yes";
-            let successHtml = `
-                <div style="padding: 20px;">
-                    <h1>${isAttending ? "See you there!" : "We'll miss you!"}</h1>
-                    <p>Thank you, ${payload.name}. Your response is saved.</p>`;
-            
-            // Only mention the email if they provided one
-            if (emailValue !== "") {
-                successHtml += `<p>A confirmation email has been sent to ${emailValue}.</p>`;
-            }
-
-            successHtml += `</div>`;
-            document.getElementById('content').innerHTML = successHtml;
+            document.getElementById('content').innerHTML = `<h1>Updated!</h1><p>Your new response has been saved.</p>`;
         }, 1500);
     }
 </script>
