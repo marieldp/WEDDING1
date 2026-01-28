@@ -5,17 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>M & J Wedding</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Great+Vibes&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
-
     <style>
         :root { --paper: #fcfaf7; --gold: #bfa17a; --text: #4a4a4a; --accent: #8b7d6b; }
         body, html { margin: 0; padding: 0; background-color: #e5e0d8; font-family: 'Montserrat', sans-serif; color: var(--text); overflow-x: hidden; }
 
         /* ENVELOPE STYLES */
-        #envelope-wrapper { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: 2000; 
-            display: flex; justify-content: center; align-items: center;
-        }
-
+        #envelope-wrapper { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: 2000; display: flex; justify-content: center; align-items: center; }
         .flap { 
             position: absolute; width: 100%; height: 50.2%; 
             background-image: url('6938.jpg'); 
@@ -25,34 +20,33 @@
         }
         .top-flap { top: 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
         .bottom-flap { bottom: 0; border-top: 1px solid rgba(255,255,255,0.8); }
-
         #seal { 
             position: absolute; width: 100px; height: 100px; 
             background: radial-gradient(circle at 30% 30%, var(--gold) 0%, var(--accent) 100%);
             border-radius: 50%; z-index: 1001; cursor: pointer; display: flex; justify-content: center; align-items: center;
             box-shadow: 0 10px 25px rgba(0,0,0,0.3); transition: all 0.5s ease;
         }
-        #seal span { color: white; font-family: 'Playfair Display', serif; font-size: 1.2rem; pointer-events: none; }
-
+        #seal span { color: white; font-family: 'Playfair Display'; font-size: 1.2rem; pointer-events: none; }
         .open .top-flap { transform: translateY(-100%); }
         .open .bottom-flap { transform: translateY(100%); }
         .open #seal { opacity: 0; pointer-events: none; }
 
-        /* MAIN CONTENT */
+        /* MAIN SITE CONTENT */
         #main-site { 
             opacity: 0; transform: translateY(20px); transition: opacity 1.5s ease 0.8s, transform 1.5s ease 0.8s;
             max-width: 600px; margin: 0 auto; padding: 60px 20px; text-align: center; 
         }
         .show-site #main-site { opacity: 1; transform: translateY(0); }
-
         .rsvp-card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-top: 20px; text-align: left; }
         .hidden { display: none !important; }
-        
-        label { font-weight: bold; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); }
-        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0 20px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-family: inherit; }
-        
-        .btn { background: var(--accent); color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; }
-        .btn:disabled { background: #ccc; cursor: not-allowed; }
+
+        label { font-weight: bold; font-size: 0.8rem; text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 5px; margin-top: 15px; }
+        input, select, textarea { 
+            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; 
+            box-sizing: border-box; font-family: inherit; background-color: #fff;
+        }
+        .btn { background: var(--accent); color: white; border: none; padding: 18px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; margin-top: 20px; }
+        .btn:disabled { background: #ccc; }
     </style>
 </head>
 <body style="overflow: hidden;">
@@ -67,13 +61,13 @@
         <h1 style="font-family: 'Great Vibes'; font-size: 4rem; color: var(--accent); margin: 0;">M & J</h1>
         <p style="letter-spacing: 4px; margin-bottom: 30px;">OCTOBER 25, 2027</p>
         
-        <div id="photo-placeholder" style="width: 100%; height: 300px; background: #eee; border: 1px dashed #ccc; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #999;">
-            [Prenup Photo Section]
+        <div id="photo-area" style="width: 100%; height: 300px; background: #eee; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+            [Prenup Photo Placeholder]
         </div>
 
-        <div id="loading" class="hidden" style="margin-top: 20px;">Checking your invitation...</div>
+        <div id="loading" class="hidden">Checking invitation...</div>
         <div id="content" class="rsvp-card hidden"></div>
-        <div id="error-msg" class="hidden rsvp-card"><p>Invitation not found. Please check your link.</p></div>
+        <div id="error-msg" class="hidden rsvp-card"><p>Guest not found. Please use the original link.</p></div>
     </div>
 
     <script>
@@ -87,12 +81,9 @@
             wrapper.classList.add('open');
             document.body.classList.add('show-site');
             document.body.style.overflow = 'auto';
-
-            // Removes the invisible wall
-            setTimeout(() => {
-                wrapper.style.display = 'none'; 
-            }, 1550);
-
+            // Kill the invisible wall
+            setTimeout(() => { wrapper.style.display = 'none'; }, 1550);
+            
             if (token) {
                 document.getElementById('loading').classList.remove('hidden');
                 checkGuestStatus();
@@ -117,25 +108,25 @@
             const content = document.getElementById('content');
             content.classList.remove('hidden');
             
-            const rawP1 = String(guestData.allowPlusOne).toLowerCase().trim();
+            const rawP1 = String(guestData.allowPlusOne || '').toLowerCase().trim();
             const canP1 = (rawP1 === "true" || rawP1 === "yes");
 
             content.innerHTML = `
-                <h3 style="font-family: 'Playfair Display'; margin-top: 0;">Hi ${guestData.name},</h3>
+                <h2 style="font-family: 'Playfair Display'; margin: 0;">Hi ${guestData.name},</h2>
                 
-                <label>Email Address</label>
-                <input type="email" id="guest-email" value="${guestData.email || ''}" readonly style="background-color: #f9f9f9; color: #888;">
-
                 <label>Will you attend?</label>
                 <select id="attending-select" onchange="togglePlusOne(${canP1})">
                     <option value="Yes">Yes, I'll be there!</option>
-                    <option value="No">Sadly, I can't make it</option>
+                    <option value="No">No, I can't make it</option>
                 </select>
 
                 <div id="p1-area"></div>
 
-                <label>Message for the Couple</label>
-                <textarea id="guest-note" placeholder="Any dietary needs or a warm message..."></textarea>
+                <label>Email Address (Optional)</label>
+                <input type="email" id="guest-email" value="${guestData.email || ''}" placeholder="To receive a confirmation copy">
+
+                <label>Note for the Couple</label>
+                <textarea id="guest-note" placeholder="Message or dietary requirements..."></textarea>
 
                 <button class="btn" id="submit-btn" onclick="submitRSVP()">Confirm RSVP</button>
             `;
@@ -146,51 +137,31 @@
             const area = document.getElementById('p1-area');
             const att = document.getElementById('attending-select').value;
             if (att === "Yes" && canP1) {
-                area.innerHTML = '<label>Plus One Name</label><input type="text" id="plus-one-name" placeholder="Full name of your guest">';
-            } else {
-                area.innerHTML = '';
-            }
+                area.innerHTML = '<label>Plus One Full Name</label><input type="text" id="plus-one-name" placeholder="Guest Name">';
+            } else { area.innerHTML = ''; }
         }
 
         function showDoneView(data) {
             const content = document.getElementById('content');
             content.classList.remove('hidden');
-            content.innerHTML = `
-                <h3 style="font-family: 'Playfair Display'; margin: 0;">Thank you!</h3>
-                <p>RSVP for <strong>${data.name}</strong> has been received.</p>
-                <p>Status: ${data.attending}</p>
-            `;
+            content.innerHTML = `<h2 style="text-align: center;">Thank you!</h2><p style="text-align: center;">RSVP recorded for ${data.name}.</p>`;
         }
 
         function submitRSVP() {
             const btn = document.getElementById('submit-btn');
-            const att = document.getElementById('attending-select').value;
-            const email = document.getElementById('guest-email').value;
-            const p1 = document.getElementById('plus-one-name')?.value || "";
-            const note = document.getElementById('guest-note').value;
-
             btn.disabled = true;
-            btn.innerHTML = "Sending...";
-
+            btn.innerHTML = "Saving...";
+            
             const payload = {
                 token: token,
-                name: guestData.name,
-                email: email,
-                attending: att,
-                plusOneName: p1,
-                note: note
+                email: document.getElementById('guest-email').value,
+                attending: document.getElementById('attending-select').value,
+                plusOneName: document.getElementById('plus-one-name')?.value || "",
+                note: document.getElementById('guest-note').value
             };
 
-            fetch(webAppUrl, { 
-                method: "POST", 
-                mode: "no-cors", 
-                body: JSON.stringify(payload) 
-            }).then(() => {
-                showDoneView({ ...guestData, attending: att });
-            }).catch(err => {
-                alert("Submit error. Please try again.");
-                btn.disabled = false;
-            });
+            fetch(webAppUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) })
+                .then(() => showDoneView({ ...guestData, attending: payload.attending }));
         }
     </script>
 </body>
