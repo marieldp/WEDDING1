@@ -13,7 +13,7 @@
         /* ENVELOPE STYLES */
         #envelope-wrapper { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: 2000; 
-            display: flex; justify-content: center; align-items: center; pointer-events: auto;
+            display: flex; justify-content: center; align-items: center;
         }
 
         .flap { 
@@ -47,9 +47,12 @@
 
         .rsvp-card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-top: 20px; text-align: left; }
         .hidden { display: none !important; }
-        input, select, textarea { width: 100%; padding: 12px; margin: 10px 0 15px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-family: inherit; }
+        
+        label { font-weight: bold; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0 20px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-family: inherit; }
+        
         .btn { background: var(--accent); color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; }
-        .btn:disabled { background: #ccc; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
     </style>
 </head>
 <body style="overflow: hidden;">
@@ -62,15 +65,15 @@
 
     <div id="main-site">
         <h1 style="font-family: 'Great Vibes'; font-size: 4rem; color: var(--accent); margin: 0;">M & J</h1>
-        <p style="letter-spacing: 4px;">OCTOBER 25, 2027</p>
+        <p style="letter-spacing: 4px; margin-bottom: 30px;">OCTOBER 25, 2027</p>
         
-        <div style="width: 100%; height: 300px; background: #eee; border: 1px dashed #ccc; margin: 20px 0; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-            [Our Prenup Photo]
+        <div id="photo-placeholder" style="width: 100%; height: 300px; background: #eee; border: 1px dashed #ccc; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #999;">
+            [Prenup Photo Section]
         </div>
 
-        <div id="loading" class="hidden">Checking invitation...</div>
+        <div id="loading" class="hidden" style="margin-top: 20px;">Checking your invitation...</div>
         <div id="content" class="rsvp-card hidden"></div>
-        <div id="error-msg" class="hidden rsvp-card"><p>Invitation not found.</p></div>
+        <div id="error-msg" class="hidden rsvp-card"><p>Invitation not found. Please check your link.</p></div>
     </div>
 
     <script>
@@ -85,7 +88,7 @@
             document.body.classList.add('show-site');
             document.body.style.overflow = 'auto';
 
-            // FIX: Disable the envelope wrapper completely after animation
+            // Removes the invisible wall
             setTimeout(() => {
                 wrapper.style.display = 'none'; 
             }, 1550);
@@ -114,20 +117,26 @@
             const content = document.getElementById('content');
             content.classList.remove('hidden');
             
-            // Re-evaluating the plus-one logic
             const rawP1 = String(guestData.allowPlusOne).toLowerCase().trim();
             const canP1 = (rawP1 === "true" || rawP1 === "yes");
 
             content.innerHTML = `
-                <h3>Welcome, ${guestData.name}!</h3>
-                <label>Attendance</label>
+                <h3 style="font-family: 'Playfair Display'; margin-top: 0;">Hi ${guestData.name},</h3>
+                
+                <label>Email Address</label>
+                <input type="email" id="guest-email" value="${guestData.email || ''}" readonly style="background-color: #f9f9f9; color: #888;">
+
+                <label>Will you attend?</label>
                 <select id="attending-select" onchange="togglePlusOne(${canP1})">
-                    <option value="Yes">I'll be there!</option>
+                    <option value="Yes">Yes, I'll be there!</option>
                     <option value="No">Sadly, I can't make it</option>
                 </select>
+
                 <div id="p1-area"></div>
-                <label>Message</label>
-                <textarea id="guest-note" placeholder="Optional note..."></textarea>
+
+                <label>Message for the Couple</label>
+                <textarea id="guest-note" placeholder="Any dietary needs or a warm message..."></textarea>
+
                 <button class="btn" id="submit-btn" onclick="submitRSVP()">Confirm RSVP</button>
             `;
             togglePlusOne(canP1);
@@ -137,7 +146,7 @@
             const area = document.getElementById('p1-area');
             const att = document.getElementById('attending-select').value;
             if (att === "Yes" && canP1) {
-                area.innerHTML = '<label>Plus One Name</label><input type="text" id="plus-one-name" placeholder="Name of your guest">';
+                area.innerHTML = '<label>Plus One Name</label><input type="text" id="plus-one-name" placeholder="Full name of your guest">';
             } else {
                 area.innerHTML = '';
             }
@@ -146,24 +155,42 @@
         function showDoneView(data) {
             const content = document.getElementById('content');
             content.classList.remove('hidden');
-            content.innerHTML = `<h3>Thank you!</h3><p>RSVP for ${data.name} received.</p>`;
+            content.innerHTML = `
+                <h3 style="font-family: 'Playfair Display'; margin: 0;">Thank you!</h3>
+                <p>RSVP for <strong>${data.name}</strong> has been received.</p>
+                <p>Status: ${data.attending}</p>
+            `;
         }
 
         function submitRSVP() {
             const btn = document.getElementById('submit-btn');
+            const att = document.getElementById('attending-select').value;
+            const email = document.getElementById('guest-email').value;
+            const p1 = document.getElementById('plus-one-name')?.value || "";
+            const note = document.getElementById('guest-note').value;
+
             btn.disabled = true;
             btn.innerHTML = "Sending...";
 
             const payload = {
                 token: token,
                 name: guestData.name,
-                attending: document.getElementById('attending-select').value,
-                plusOneName: document.getElementById('plus-one-name')?.value || "",
-                note: document.getElementById('guest-note').value
+                email: email,
+                attending: att,
+                plusOneName: p1,
+                note: note
             };
 
-            fetch(webAppUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) })
-                .then(() => showDoneView({ ...guestData, attending: payload.attending }));
+            fetch(webAppUrl, { 
+                method: "POST", 
+                mode: "no-cors", 
+                body: JSON.stringify(payload) 
+            }).then(() => {
+                showDoneView({ ...guestData, attending: att });
+            }).catch(err => {
+                alert("Submit error. Please try again.");
+                btn.disabled = false;
+            });
         }
     </script>
 </body>
