@@ -60,36 +60,45 @@
 </div>
 
 <script>
-    // 1. YOUR SETTINGS
+    // 1. CONFIGURATION
     const webAppUrl = "https://script.google.com/macros/s/AKfycbxSOFOrMKvOsPcIvFDnfpM8Hpcb0CCkF_P5WEIAwxRtnnqux1h6xU2tORdHCi2zfzSJ/exec"; 
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('id');
 
-    // Global variable to store permission
+    // Global variable for permission
     window.canHavePlusOne = false;
 
-    // 2. FETCH DATA ON LOAD
+    // 2. INITIAL LOAD & CHECK STATUS
     if (!token) {
         document.getElementById('loading').innerHTML = "Invalid Link. Please use the link provided in your invite.";
     } else {
         fetch(`${webAppUrl}?id=${encodeURIComponent(token)}`)
             .then(res => res.json())
             .then(data => {
-                console.log("Data Received:", data);
                 document.getElementById('loading').classList.add('hidden');
 
                 if (data.name) {
-                    // Fill in name
+                    // CHECK IF GUEST ALREADY RESPONDED
+                    if (data.isDone === true) {
+                        document.getElementById('content').innerHTML = `
+                            <div style="padding: 20px;">
+                                <h1 style="font-size: 2rem;">Thank You!</h1>
+                                <p>Hi ${data.name}, we've already received your RSVP.</p>
+                                <p>We can't wait to celebrate with you!</p>
+                            </div>
+                        `;
+                        document.getElementById('content').classList.remove('hidden');
+                        return; // Stop here, don't show the form
+                    }
+
+                    // IF NOT DONE, LOAD THE FORM
                     document.getElementById('welcome-msg').innerText = "Welcome, " + data.name + "!";
                     document.getElementById('guest-name-input').value = data.name;
                     
-                    // Set Plus One Permission - Check for "TRUE" or true
+                    // Set Plus One Permission
                     let pOne = String(data.allowPlusOne).toUpperCase().trim();
                     window.canHavePlusOne = (pOne === "TRUE" || pOne === "YES");
                     
-                    console.log("Plus One Allowed:", window.canHavePlusOne);
-
-                    // Show the form and run the visibility check
                     document.getElementById('content').classList.remove('hidden');
                     togglePlusOneVisibility();
                 } else {
@@ -102,14 +111,14 @@
             });
     }
 
-    // 3. UI FUNCTIONS
+    // 3. UI TOGGLE FUNCTIONS
     function togglePlusOneVisibility() {
         const isAttending = document.getElementById('attending-select').value === "Yes";
         const btn = document.getElementById('add-guest-btn');
         const container = document.getElementById('plus-one-container');
 
         if (isAttending && window.canHavePlusOne === true) {
-            // Only show the button if they haven't already clicked it
+            // Only show button if container isn't already open
             if (container.style.display !== 'block') {
                 btn.style.display = 'block';
             }
@@ -125,7 +134,7 @@
         document.getElementById('add-guest-btn').style.display = 'none';
     }
 
-    // 4. SUBMIT RSVP
+    // 4. SUBMIT RSVP DATA
     function submitRSVP() {
         const emailInput = document.getElementById('guest-email');
         if (!emailInput.checkValidity()) {
@@ -146,19 +155,22 @@
             note: document.getElementById('note-input').value
         };
 
-        // Send to Google Sheets
+        // POST data to Google Apps Script
         fetch(webAppUrl, {
             method: "POST",
             mode: "no-cors",
             body: JSON.stringify(payload)
         });
 
-        // Show success message
+        // Show Success Message and clear the form view
         setTimeout(() => {
+            const isAttending = payload.attending === "Yes";
             document.getElementById('content').innerHTML = `
-                <h1>Success!</h1>
-                <p>Thank you, ${payload.name}. Your RSVP has been received.</p>
-                <p>A confirmation has been sent to ${payload.email}.</p>
+                <div style="padding: 20px;">
+                    <h1>${isAttending ? "See you there!" : "We'll miss you!"}</h1>
+                    <p>Thank you, ${payload.name}. Your response is saved.</p>
+                    <p>A confirmation email has been sent to ${payload.email}.</p>
+                </div>
             `;
         }, 1500);
     }
