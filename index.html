@@ -152,11 +152,19 @@
     }
 
     function showDoneView(data) {
-        const content = document.getElementById('content');
-        content.classList.remove('hidden');
-        content.innerHTML = `<h2 style="text-align: center;">Thank you!</h2><p style="text-align: center;">RSVP recorded for ${data.name}.</p>`;
-    }
-
+            const content = document.getElementById('content');
+            content.classList.remove('hidden');
+            content.innerHTML = `
+                <h2 style="text-align: center; font-family: 'Playfair Display';">Thank you!</h2>
+                <p style="text-align: center;">RSVP recorded for ${data.name}.</p>
+                <div style="text-align: center; margin-top: 20px;">
+                    <a href="#" onclick="event.preventDefault(); showMainForm();" 
+                       style="font-size: 0.9rem; color: #888; text-decoration: underline; cursor: pointer;">
+                       Change your mind? Edit RSVP
+                    </a>
+                </div>
+            `;
+        }
     function submitRSVP() {
         const btn = document.getElementById('submit-btn');
         btn.disabled = true;
