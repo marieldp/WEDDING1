@@ -88,14 +88,13 @@
                             </div>
                         `;
                         document.getElementById('content').classList.remove('hidden');
-                        return; // Stop here, don't show the form
+                        return; 
                     }
 
                     // IF NOT DONE, LOAD THE FORM
                     document.getElementById('welcome-msg').innerText = "Welcome, " + data.name + "!";
                     document.getElementById('guest-name-input').value = data.name;
                     
-                    // Set Plus One Permission
                     let pOne = String(data.allowPlusOne).toUpperCase().trim();
                     window.canHavePlusOne = (pOne === "TRUE" || pOne === "YES");
                     
@@ -118,7 +117,6 @@
         const container = document.getElementById('plus-one-container');
 
         if (isAttending && window.canHavePlusOne === true) {
-            // Only show button if container isn't already open
             if (container.style.display !== 'block') {
                 btn.style.display = 'block';
             }
@@ -134,11 +132,14 @@
         document.getElementById('add-guest-btn').style.display = 'none';
     }
 
-    // 4. SUBMIT RSVP DATA
+    // 4. SUBMIT RSVP DATA (UPDATED FOR OPTIONAL EMAIL)
     function submitRSVP() {
         const emailInput = document.getElementById('guest-email');
-        if (!emailInput.checkValidity()) {
-            alert("Please enter a valid email.");
+        const emailValue = emailInput.value.trim();
+
+        // Only validate if they actually typed something
+        if (emailValue !== "" && !emailInput.checkValidity()) {
+            alert("Please enter a valid email address or leave it blank.");
             return;
         }
 
@@ -149,29 +150,32 @@
         const payload = {
             token: token,
             name: document.getElementById('guest-name-input').value,
-            email: emailInput.value,
+            email: emailValue || "No email provided", // Default text if blank
             plusOneName: document.getElementById('plus-one-name').value || "None",
             attending: document.getElementById('attending-select').value,
             note: document.getElementById('note-input').value
         };
 
-        // POST data to Google Apps Script
         fetch(webAppUrl, {
             method: "POST",
             mode: "no-cors",
             body: JSON.stringify(payload)
         });
 
-        // Show Success Message and clear the form view
         setTimeout(() => {
             const isAttending = payload.attending === "Yes";
-            document.getElementById('content').innerHTML = `
+            let successHtml = `
                 <div style="padding: 20px;">
                     <h1>${isAttending ? "See you there!" : "We'll miss you!"}</h1>
-                    <p>Thank you, ${payload.name}. Your response is saved.</p>
-                    <p>A confirmation email has been sent to ${payload.email}.</p>
-                </div>
-            `;
+                    <p>Thank you, ${payload.name}. Your response is saved.</p>`;
+            
+            // Only mention the email if they provided one
+            if (emailValue !== "") {
+                successHtml += `<p>A confirmation email has been sent to ${emailValue}.</p>`;
+            }
+
+            successHtml += `</div>`;
+            document.getElementById('content').innerHTML = successHtml;
         }, 1500);
     }
 </script>
