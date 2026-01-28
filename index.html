@@ -59,37 +59,43 @@
 </div>
 
 <script>
-    const webAppUrl = "https://script.google.com/macros/s/AKfycbxSOFOrMKvOsPcIvFDnfpM8Hpcb0CCkF_P5WEIAwxRtnnqux1h6xU2tORdHCi2zfzSJ/exec"; 
+    const webAppUrl = "YOUR_NEW_DEPLOYMENT_URL_HERE"; 
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('id');
 
-    // Make this global
+    // 1. Initialize global variable
     window.canHavePlusOne = false;
 
     if (!token) {
-        document.getElementById('loading').innerHTML = "Invalid Link.";
+        document.getElementById('loading').innerHTML = "No invitation ID found.";
     } else {
-        fetch(webAppUrl + "?id=" + encodeURIComponent(token))
+        fetch(`${webAppUrl}?id=${encodeURIComponent(token)}`)
             .then(res => res.json())
             .then(data => {
                 document.getElementById('loading').classList.add('hidden');
+                
                 if (data.name) {
-                    if (data.isDone === true) {
-                        document.getElementById('content').innerHTML = `<h1>Thank You!</h1><p>Hi ${data.name}, we have your RSVP!</p>`;
-                    } else {
-                        document.getElementById('welcome-msg').innerText = "Welcome, " + data.name + "!";
-                        document.getElementById('guest-name-input').value = data.name;
-                        
-                        // Set the plus one permission
-                        window.canHavePlusOne = (data.allowPlusOne === true || data.allowPlusOne === "true" || data.allowPlusOne === "TRUE");
-                        
-                        // Check visibility immediately
-                        togglePlusOneVisibility();
-                    }
+                    // Show the form
+                    document.getElementById('welcome-msg').innerText = "Welcome, " + data.name + "!";
+                    document.getElementById('guest-name-input').value = data.name;
+                    
+                    // 2. THE FIX: Convert whatever Google sends into a real True/False
+                    // This checks for true, "true", "TRUE", "Yes", etc.
+                    let rawVal = String(data.allowPlusOne).toUpperCase().trim();
+                    window.canHavePlusOne = (rawVal === "TRUE" || rawVal === "YES");
+
+                    console.log("Plus One Permission for this guest:", window.canHavePlusOne);
+                    
+                    // 3. Trigger visibility immediately
+                    togglePlusOneVisibility();
+                    
                     document.getElementById('content').classList.remove('hidden');
                 } else {
                     document.getElementById('error-msg').classList.remove('hidden');
                 }
+            })
+            .catch(err => {
+                document.getElementById('loading').innerHTML = "Connection error. Please refresh.";
             });
     }
 
@@ -98,7 +104,8 @@
         const btn = document.getElementById('add-guest-btn');
         const container = document.getElementById('plus-one-container');
 
-        if (isAttending && window.canHavePlusOne) {
+        // 4. Show button ONLY if Attending AND Allowed
+        if (isAttending && window.canHavePlusOne === true) {
             btn.style.display = 'block';
         } else {
             btn.style.display = 'none';
@@ -132,35 +139,10 @@
             note: document.getElementById('note-input').value
         };
 
-        fetch(webAppUrl + "?id=" + encodeURIComponent(token))
-        .then(res => res.json())
-        .then(data => {
-            document.getElementById('loading').classList.add('hidden');
-            
-            // DEBUG: This will pop up a window. Tell me what it says!
-            // alert("Debug: allowPlusOne is " + data.allowPlusOne);
-
-            if (data.name) {
-                if (data.isDone === true) {
-                    document.getElementById('content').innerHTML = `<h1>Thank You!</h1><p>Hi ${data.name}, we have your RSVP!</p>`;
-                } else {
-                    document.getElementById('welcome-msg').innerText = "Welcome, " + data.name + "!";
-                    document.getElementById('guest-name-input').value = data.name;
-                    
-                    // The "Hammer" Logic: If it looks like true, it IS true.
-                    let rawValue = String(data.allowPlusOne).toLowerCase().trim();
-                    if (rawValue === "true" || rawValue === "yes" || data.allowPlusOne === true) {
-                        window.canHavePlusOne = true;
-                    } else {
-                        window.canHavePlusOne = false;
-                    }
-                    
-                    togglePlusOneVisibility();
-                }
-                document.getElementById('content').classList.remove('hidden');
-            } else {
-                document.getElementById('error-msg').classList.remove('hidden');
-            }
+        fetch(webAppUrl, {
+            method: "POST",
+            mode: "no-cors",
+            body: JSON.stringify(payload)
         });
 
         setTimeout(() => {
