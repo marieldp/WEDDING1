@@ -170,6 +170,16 @@
         area.innerHTML = ''; 
     }
 }
+    function toggleP1Name() {
+    const wrapper = document.getElementById('p1-name-wrapper');
+    const bringing = document.getElementById('bringing-p1').value;
+    
+    if (bringing === "Yes") {
+        wrapper.innerHTML = '<label>Plus One Full Name</label><input type="text" id="plus-one-name" placeholder="Guest Name">';
+    } else { 
+        wrapper.innerHTML = ''; 
+    }
+}
 
     function submitRSVP() {
         const btn = document.getElementById('submit-btn');
