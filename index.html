@@ -70,7 +70,7 @@
         <div id="error-msg" class="hidden rsvp-card"><p>Guest not found. Please use the original link.</p></div>
     </div>
 <script>
-    const webAppUrl = "https://script.google.com/macros/s/AKfycbzCpQEO1QrFo__DnYkKFLqFmmPnGDG_2V-ThTatqoCFmXFmhQ1esQgiRztVZli1cPPL/exec"; 
+    const webAppUrl = "https://script.google.com/macros/s/AKfycbw-f-QuQTu7ry8YYVF3TE5EYTFLenryQzEgdY96rmSetu3dU659hJGhhKZQtP3GfsLc/exec"; 
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('id');
     let guestData = null;
@@ -141,7 +141,7 @@
             </select>
             <div id="p1-area"></div>
             <label>Email Address (For confirmation)</label>
-            <input type="email" id="guest-email" value="${guestData.email || ''}" placeholder="optional">
+            <input type="email" id="guest-email" value="${guestData.email || ''}">
             <label>Want to send a message to the couple?</label>
             <textarea id="guest-note">${guestData.note || ''}</textarea>
             <button class="btn" id="submit-btn" onclick="submitRSVP()">Confirm RSVP</button>
