@@ -127,26 +127,36 @@ const webAppUrl = "https://script.google.com/macros/s/AKfycbzW__hG2f3Chy2RxwB5I-
     }
 
     function showMainForm() {
-        const content = document.getElementById('content');
-        content.classList.remove('hidden');
-        const canP1 = (guestData.allowPlusOne === true || guestData.allowPlusOne === "true");
+    const content = document.getElementById('content');
+    content.classList.remove('hidden');
+
+    // 1. Re-verify the Plus One permission from the guestData we already have
+    const canP1 = (guestData.allowPlusOne === true || guestData.allowPlusOne === "true");
+
+    content.innerHTML = `
+        <h2 style="font-family: 'Playfair Display'; margin: 0;">Hi ${guestData.name},</h2>
         
-        content.innerHTML = `
-            <h2 style="font-family: 'Playfair Display';">Hi ${guestData.name},</h2>
-            <label>Will you attend?</label>
-            <select id="attending-select" onchange="togglePlusOne(${canP1})">
-                <option value="Yes">Yes, I'll be there!</option>
-                <option value="No">No, I can't make it</option>
-            </select>
-            <div id="p1-area"></div>
-            <label>Email Address</label>
-            <input type="email" id="guest-email" value="${guestData.email || ''}">
-            <label>Message for the couple</label>
-            <textarea id="guest-note" placeholder="Optional..."></textarea>
-            <button class="btn" id="submit-btn" onclick="submitRSVP()">Confirm RSVP</button>
-        `;
-        togglePlusOne(canP1);
-    }
+        <label>Will you attend?</label>
+        <select id="attending-select" onchange="togglePlusOne(${canP1})">
+            <option value="Yes">Yes, I'll be there!</option>
+            <option value="No">No, I can't make it</option>
+        </select>
+
+        <div id="p1-area"></div>
+
+        <label>Email Address</label>
+        <input type="email" id="guest-email" value="${guestData.email || ''}">
+
+        <label>Message for the couple</label>
+        <textarea id="guest-note" placeholder="Optional..."></textarea>
+
+        <button class="btn" id="submit-btn" onclick="submitRSVP()">Confirm RSVP</button>
+    `;
+
+    // 2. CRITICAL: Run this immediately so the Plus One dropdown 
+    // appears instantly if they are allowed one.
+    togglePlusOne(canP1);
+}
 
     // 3. DYNAMIC UI LOGIC (Plus One toggles)
     function togglePlusOne(canP1) {
