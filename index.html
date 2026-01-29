@@ -22,16 +22,35 @@
         .bottom-flap { bottom: 0; border-top: 1px solid rgba(255,255,255,0.8); }
         
         #seal { 
-            position: absolute; width: 100px; height: 100px; 
-            background: radial-gradient(circle at 30% 30%, #d4af37 0%, #bfa17a 100%);
-            border-radius: 50%; z-index: 1001; cursor: pointer; display: flex; justify-content: center; align-items: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3); transition: all 0.5s ease;
-        }
-        #seal span { color: white; font-family: 'Playfair Display'; font-size: 1.2rem; pointer-events: none; }
-        
-        .open .top-flap { transform: translateY(-100%); }
-        .open .bottom-flap { transform: translateY(100%); }
-        .open #seal { opacity: 0; pointer-events: none; }
+    position: absolute; 
+    width: 120px; 
+    height: 120px; 
+    /* Replace 'seal.png' with your actual filename (e.g., 'stamp.png') */
+    background: url('seal.png') no-repeat center; 
+    background-size: contain;
+    z-index: 1001; 
+    cursor: pointer; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    /* drop-shadow is better for wax shapes than box-shadow */
+    filter: drop-shadow(0 8px 15px rgba(0,0,0,0.4)); 
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+}
+
+/* This makes the stamp 'pop' slightly when someone hovers over it */
+#seal:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(0 12px 20px rgba(0,0,0,0.5));
+}
+
+#seal span { 
+    display: none; /* Hides the old M&J text so your stamp is the star */
+}
+
+.open .top-flap { transform: translateY(-100%); }
+.open .bottom-flap { transform: translateY(100%); }
+.open #seal { opacity: 0; pointer-events: none; transform: scale(0.8); }
 
         /* MAIN SITE TRANSITION */
         #main-site { 
