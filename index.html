@@ -130,8 +130,7 @@ const webAppUrl = "https://script.google.com/macros/s/AKfycbzW__hG2f3Chy2RxwB5I-
     const content = document.getElementById('content');
     content.classList.remove('hidden');
 
-    // We pull the permission directly from the global guestData object
-    // We check for both boolean true and the string "true" just in case
+    // 1. Get permission status
     const canP1 = (guestData.allowPlusOne === true || guestData.allowPlusOne === "true");
 
     content.innerHTML = `
@@ -154,9 +153,11 @@ const webAppUrl = "https://script.google.com/macros/s/AKfycbzW__hG2f3Chy2RxwB5I-
         <button class="btn" id="submit-btn" onclick="submitRSVP()">Confirm RSVP</button>
     `;
 
-    // MANUALLY TRIGGER THE TOGGLE
-    // This forces the "p1-area" to fill up immediately
-    togglePlusOne(canP1);
+    // 2. THE FIX: Wait 10 milliseconds for the HTML to actually exist 
+    // before trying to fill the p1-area.
+    setTimeout(() => {
+        togglePlusOne(canP1);
+    }, 10);
 }
 
     // 3. DYNAMIC UI LOGIC (Plus One toggles)
