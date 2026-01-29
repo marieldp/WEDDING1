@@ -69,29 +69,21 @@
         <div id="content" class="rsvp-card hidden"></div>
         <div id="error-msg" class="hidden rsvp-card"><p>Guest not found. Please use the original link.</p></div>
     </div>
-
 <script>
-    const webAppUrl = "https://script.google.com/macros/s/AKfycbzW__hG2f3Chy2RxwB5I-aSHREmuXydb134hSOQWXYfjmFDEVrAEg0k767rJ5VNnN1e/exec"; 
+const webAppUrl = "https://script.google.com/macros/s/AKfycbzW__hG2f3Chy2RxwB5I-aSHREmuXydb134hSOQWXYfjmFDEVrAEg0k767rJ5VNnN1e/exec"; 
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('id');
     let guestData = null;
 
-    // This runs when you click the M&J Seal
+    // 1. INITIALIZATION & DATA FETCHING
     function openInvitation() {
-        console.log("Seal clicked!"); // Check your console to see this
-        const wrapper = document.getElementById('envelope-wrapper');
-        
-        // 1. Trigger the animation
-        wrapper.classList.add('open');
+        document.getElementById('envelope-wrapper').classList.add('open');
         document.body.classList.add('show-site');
         document.body.style.overflow = 'auto';
-
-        // 2. Remove the envelope after animation
         setTimeout(() => { 
-            wrapper.style.display = 'none'; 
+            document.getElementById('envelope-wrapper').style.display = 'none'; 
         }, 1550);
 
-        // 3. Load guest info if token exists
         if (token) {
             document.getElementById('loading').classList.remove('hidden');
             checkGuestStatus();
@@ -101,89 +93,93 @@
     }
 
     function checkGuestStatus() {
-        fetch(`${webAppUrl}?id=${encodeURIComponent(token)}`, {
-            method: "GET",
-            redirect: "follow"
-        })
+        fetch(`${webAppUrl}?id=${encodeURIComponent(token)}`, { method: "GET", redirect: "follow" })
         .then(res => res.json())
         .then(data => {
             guestData = data;
             document.getElementById('loading').classList.add('hidden');
             if (data.name) {
                 data.isDone ? showDoneView(data) : showMainForm();
-            } else {
-                document.getElementById('error-msg').classList.remove('hidden');
+            } else { 
+                document.getElementById('error-msg').classList.remove('hidden'); 
             }
         })
         .catch(err => {
-            console.error("Fetch Error:", err);
             document.getElementById('loading').innerHTML = "Connection Error. Please refresh.";
         });
     }
 
-    function showMainForm() {
-    const content = document.getElementById('content');
-    content.classList.remove('hidden');
-
-    // Force strict boolean check from guestData
-    const canP1 = (guestData.allowPlusOne === true || guestData.allowPlusOne === "true");
-
-    content.innerHTML = `
-        <h2 style="font-family: 'Playfair Display'; margin: 0;">Hi ${guestData.name},</h2>
-        
-        <label>Will you attend?</label>
-        <select id="attending-select" onchange="togglePlusOne(${canP1})">
-            <option value="Yes">Yes, I'll be there!</option>
-            <option value="No">No, I can't make it</option>
-        </select>
-
-        <div id="p1-area"></div>
-
-        <label>Email Address (for confirmation)</label>
-        <input type="email" id="guest-email" value="${guestData.email || ''}">
-
-        <label>Want to send a message for the couple?</label>
-        <textarea id="guest-note" placeholder="Message..."></textarea>
-
-        <button class="btn" id="submit-btn" onclick="submitRSVP()">Confirm RSVP</button>
-    `;
-    
-    // This ensures the plus one area logic runs immediately on load
-    togglePlusOne(canP1);
-}
-
-    function togglePlusOne(canP1) {
-    const area = document.getElementById('p1-area');
-    const attendanceStatus = document.getElementById('attending-select').value;
-    
-    // Only show the Plus One question if they are attending AND allowed (canP1)
-    if (attendanceStatus === "Yes" && canP1) {
-        area.innerHTML = `
-            <label>Are you bringing a plus one?</label>
-            <select id="bringing-p1" onchange="toggleP1Name()">
-                <option value="No">No</option>
-                <option value="Yes">Yes</option>
-            </select>
-            <div id="p1-name-wrapper"></div>
+    // 2. VIEW CONTROLLERS (Displaying the forms)
+    function showDoneView(data) {
+        const content = document.getElementById('content');
+        content.classList.remove('hidden');
+        content.innerHTML = `
+            <div style="text-align: center;">
+                <h2 style="font-family: 'Playfair Display';">Thank you!</h2>
+                <p>RSVP recorded for ${data.name}.</p>
+                <div style="margin-top: 20px;">
+                    <a href="#" onclick="event.preventDefault(); showMainForm();" style="color: #888; text-decoration: underline; font-size: 0.8rem;">
+                        Edit your response
+                    </a>
+                </div>
+            </div>
         `;
-    } else { 
-        area.innerHTML = ''; 
     }
-}
-    function toggleP1Name() {
-    const wrapper = document.getElementById('p1-name-wrapper');
-    const bringing = document.getElementById('bringing-p1').value;
-    
-    if (bringing === "Yes") {
-        wrapper.innerHTML = '<label>Plus One Full Name</label><input type="text" id="plus-one-name" placeholder="Guest Name">';
-    } else { 
-        wrapper.innerHTML = ''; 
-    }
-}
 
+    function showMainForm() {
+        const content = document.getElementById('content');
+        content.classList.remove('hidden');
+        const canP1 = (guestData.allowPlusOne === true || guestData.allowPlusOne === "true");
+        
+        content.innerHTML = `
+            <h2 style="font-family: 'Playfair Display';">Hi ${guestData.name},</h2>
+            <label>Will you attend?</label>
+            <select id="attending-select" onchange="togglePlusOne(${canP1})">
+                <option value="Yes">Yes, I'll be there!</option>
+                <option value="No">No, I can't make it</option>
+            </select>
+            <div id="p1-area"></div>
+            <label>Email Address</label>
+            <input type="email" id="guest-email" value="${guestData.email || ''}">
+            <label>Message for the couple</label>
+            <textarea id="guest-note" placeholder="Optional..."></textarea>
+            <button class="btn" id="submit-btn" onclick="submitRSVP()">Confirm RSVP</button>
+        `;
+        togglePlusOne(canP1);
+    }
+
+    // 3. DYNAMIC UI LOGIC (Plus One toggles)
+    function togglePlusOne(canP1) {
+        const area = document.getElementById('p1-area');
+        const att = document.getElementById('attending-select').value;
+        if (att === "Yes" && canP1) {
+            area.innerHTML = `
+                <label>Are you bringing a plus one?</label>
+                <select id="bringing-p1" onchange="toggleP1Name()">
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                </select>
+                <div id="p1-name-wrapper"></div>
+            `;
+        } else { 
+            area.innerHTML = ''; 
+        }
+    }
+
+    function toggleP1Name() {
+        const wrapper = document.getElementById('p1-name-wrapper');
+        const bringing = document.getElementById('bringing-p1').value;
+        if (bringing === "Yes") {
+            wrapper.innerHTML = '<label>Plus One Full Name</label><input type="text" id="plus-one-name" placeholder="Guest Name">';
+        } else { 
+            wrapper.innerHTML = ''; 
+        }
+    }
+
+    // 4. DATA SUBMISSION
     function submitRSVP() {
         const btn = document.getElementById('submit-btn');
-        btn.disabled = true;
+        btn.disabled = true; 
         btn.innerHTML = "Saving...";
 
         const p1NameInput = document.getElementById('plus-one-name');
@@ -196,15 +192,15 @@
             note: document.getElementById('guest-note').value
         };
 
-        fetch(webAppUrl, { 
-            method: "POST", 
-            mode: "no-cors", 
-            body: JSON.stringify(payload) 
-        })
+        fetch(webAppUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) })
         .then(() => {
-            setTimeout(() => {
-                showDoneView({ ...guestData, name: guestData.name });
-            }, 500);
+            // This is where the error was—now showDoneView is defined above
+            showDoneView({ ...guestData });
+        })
+        .catch(err => {
+            alert("Error saving RSVP. Please try again.");
+            btn.disabled = false;
+            btn.innerHTML = "Confirm RSVP";
         });
     }
 </script>
