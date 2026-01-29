@@ -130,21 +130,35 @@ const webAppUrl = "https://script.google.com/macros/s/AKfycbzW__hG2f3Chy2RxwB5I-
     const content = document.getElementById('content');
     content.classList.remove('hidden');
 
-    // 1. Determine permission and SAVE IT to a global attribute on the content div
-    const rawVal = String(guestData.allowPlusOne).toLowerCase().trim();
-    const canP1 = (rawVal === "true" || rawVal === "yes" || rawVal === "1");
-    content.setAttribute('data-can-p1', canP1); 
+    // 1. Check permission (Check for 'true', true, or 'yes')
+    const rawP1 = String(guestData.allowPlusOne).toLowerCase();
+    const canP1 = rawP1 === "true" || rawP1 === "yes";
 
+    // 2. Pre-build the Plus One HTML string so we can inject it directly
+    let plusOneHTML = '';
+    if (canP1) {
+        plusOneHTML = `
+            <div id="p1-area">
+                <label>Are you bringing a plus one?</label>
+                <select id="bringing-p1" onchange="toggleP1Name()">
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                </select>
+                <div id="p1-name-wrapper"></div>
+            </div>`;
+    }
+
+    // 3. Render everything at once
     content.innerHTML = `
         <h2 style="font-family: 'Playfair Display';">Hi ${guestData.name},</h2>
         
         <label>Will you attend?</label>
-        <select id="attending-select" onchange="togglePlusOne()">
+        <select id="attending-select" onchange="handleAttendanceChange(${canP1})">
             <option value="Yes">Yes, I'll be there!</option>
             <option value="No">No, I can't make it</option>
         </select>
 
-        <div id="p1-area"></div>
+        ${plusOneHTML}
 
         <label>Email Address</label>
         <input type="email" id="guest-email" value="${guestData.email || ''}">
@@ -154,9 +168,16 @@ const webAppUrl = "https://script.google.com/macros/s/AKfycbzW__hG2f3Chy2RxwB5I-
 
         <button class="btn" id="submit-btn" onclick="submitRSVP()">Confirm RSVP</button>
     `;
+}
 
-    // 2. Run immediately
-    togglePlusOne();
+// 4. Add this helper to hide/show the P1 area if they switch to "No"
+function handleAttendanceChange(canP1) {
+    const p1Area = document.getElementById('p1-area');
+    const isAttending = document.getElementById('attending-select').value === "Yes";
+    
+    if (p1Area) {
+        p1Area.style.display = (isAttending && canP1) ? "block" : "none";
+    }
 }
 
 function togglePlusOne() {
