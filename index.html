@@ -130,7 +130,8 @@ const webAppUrl = "https://script.google.com/macros/s/AKfycbzW__hG2f3Chy2RxwB5I-
     const content = document.getElementById('content');
     content.classList.remove('hidden');
 
-    // 1. Re-verify the Plus One permission from the guestData we already have
+    // We pull the permission directly from the global guestData object
+    // We check for both boolean true and the string "true" just in case
     const canP1 = (guestData.allowPlusOne === true || guestData.allowPlusOne === "true");
 
     content.innerHTML = `
@@ -153,8 +154,8 @@ const webAppUrl = "https://script.google.com/macros/s/AKfycbzW__hG2f3Chy2RxwB5I-
         <button class="btn" id="submit-btn" onclick="submitRSVP()">Confirm RSVP</button>
     `;
 
-    // 2. CRITICAL: Run this immediately so the Plus One dropdown 
-    // appears instantly if they are allowed one.
+    // MANUALLY TRIGGER THE TOGGLE
+    // This forces the "p1-area" to fill up immediately
     togglePlusOne(canP1);
 }
 
