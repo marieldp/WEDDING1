@@ -74,22 +74,15 @@ body, html { margin: 0; padding: 0; background-color: #e5e0d8; font-family: 'Mon
     clip-path: polygon(0 0, 50% 50%, 100% 0, 100% 100%, 0 100%);
 }    
 /* THE SEAL */
-#seal {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100px; /* This was the original width before it got small */
-    height: 100px;
-    z-index: 10; /* This ensures it sits on top of the lines */
-    cursor: pointer;
-    transition: transform 0.3s ease;
-}
-
-#seal img {
-    width: 100%;
-    height: auto;
-    display: block;
+#seal { 
+    position: absolute; 
+    top: 50%; left: 50%; 
+    width: 75px; height: 75px; 
+    transform: translate(-50%, -50%); 
+    z-index: 5; cursor: pointer;
+    background: url('seal.png') no-repeat center/contain;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); 
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 #seal:hover {
