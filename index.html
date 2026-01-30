@@ -81,6 +81,13 @@ body, html { margin: 0; padding: 0; background-color: #e5e0d8; font-family: 'Mon
 /* ANIMATION STATES */
 .open .top-flap { transform: rotateX(180deg); z-index: 0; }
 .open #seal { opacity: 0; transform: translate(-50%, -50%) scale(1.2); pointer-events: none; }
+    
+#envelope-wrapper.envelope-exit { 
+    transform: translateY(100vh) scale(0.9); /* Moves down off-screen */
+    opacity: 0; 
+    pointer-events: none; /* Allows you to click the site immediately */
+    transition: all 0.8s cubic-bezier(0.6, -0.28, 0.735, 0.045); /* Smooth 'drop' effect */
+}
 
 /* MAIN SITE TRANSITION */
 #main-site { 
