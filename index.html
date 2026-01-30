@@ -62,8 +62,30 @@ body, html { margin: 0; padding: 0; background-color: #e5e0d8; font-family: 'Mon
     background: url('6938.jpg') center/cover;
     clip-path: polygon(0 0, 100% 0, 50% 100%);
 }
+.dried-flowers {
+    position: absolute;
+    /* Aligns it horizontally with the seal */
+    left: 50%;
+    /* Positioned slightly higher than the seal's 60% */
+    top: 54%; 
+    transform: translate(-50%, -50%);
+    
+    /* Adjust width to be wider than the seal (e.g., 120px to 150px) */
+    width: 140px; 
+    height: auto;
+    
+    /* Layering: Higher than flap (6), Lower than seal (999) */
+    z-index: 10; 
+    
+    pointer-events: none; /* So it doesn't block clicking the seal */
+    opacity: 0.9; /* Optional: makes it look more "pressed" into the paper */
+}
 
-/* 4. THE SEAL - FIXED POSITIONING */
+/* Ensure the seal stays on top and clickable */
+#seal {
+    z-index: 999 !important;
+}
+
 /* 4. THE SEAL - LOCKED TO THE ENVELOPE */
 #seal {
     position: absolute;
@@ -142,17 +164,16 @@ input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; bo
 </head>
 <body style="overflow: hidden;">
 
-<div id="envelope-wrapper">
-    <div class="envelope">
-        <div class="letter">...</div>
-        <div class="envelope-pocket-main"></div>
-        <div class="envelope-lines"></div> 
-        <div class="top-flap"></div>
-        
-        <div id="seal" onclick="openInvitation()">
-            <img src="seal.png" alt="Seal">
-        </div>
-    </div>
+<div class="envelope">
+    <div class="letter">...</div>
+    <div class="envelope-pocket-main"></div>
+    <div class="envelope-lines"></div> 
+    <div class="top-flap"></div>
+    
+    <img src="df.png" class="dried-flowers" alt="Floral Accent">
+
+    <div id="seal" onclick="openInvitation()">
+        <img src="seal.png" alt="Seal"> </div>
 </div>
 
 <div id="main-site">
