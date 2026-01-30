@@ -11,45 +11,38 @@ body, html { margin: 0; padding: 0; background-color: #e5e0d8; font-family: 'Mon
 
 /* ENVELOPE STYLES */
 
-/* THE WRAPPER: Must stay to provide the centering context */
+/* THE WRAPPER: Absolute Dead Center */
 #envelope-wrapper {
     position: fixed;
     top: 0; left: 0;
     width: 100vw; height: 100vh;
-    z-index: 9999;
-    background-color: #f4f1ea;
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 9999;
+    background-color: #f4f1ea;
 }
 
 .envelope { 
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    
-    /* Responsive Width & Height */
+    position: relative; 
     width: 85vw; 
     max-width: 500px; 
     height: 56.6vw; 
     max-height: 333px; 
-    
     background: #ebe7e0; 
     box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-    overflow: visible; /* Important so shadows/lines don't clip */
 }
 
-/* TOP FLAP - Resetting the shadow for a thinner look */
-.top-flap { 
-    position: absolute; 
-    top: 0; left: 0; width: 100%; height: 50.5%; /* 0.5% overlap to hide gaps */
+/* THE FLAP: Set to exactly 50% to match the lines */
+.top-flap {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 50%;
     z-index: 5;
     background: url('6938.jpg') center/cover;
-    clip-path: polygon(0 0, 100% 0, 50% 100%); 
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
     transform-origin: top;
     transition: transform 0.8s ease-in-out;
-    filter: drop-shadow(0 4px 3px rgba(0,0,0,0.2));
 }
 /* THE POCKET */
 .envelope-pocket-main { 
@@ -60,25 +53,25 @@ body, html { margin: 0; padding: 0; background-color: #e5e0d8; font-family: 'Mon
     clip-path: polygon(0 0, 50% 50%, 100% 0, 100% 100%, 0 100%);
 }
 
+/* THE LINES: Thick, Fading, and Guaranteed to reach the center */
 .envelope-lines {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    /* We make it slightly taller (102%) to ensure it overlaps the flap tip */
-    height: 100%; 
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     z-index: 4;
     pointer-events: none;
-    
-    /* Using viewBox='0 0 100 100' ensures 50,50 is ALWAYS the dead center */
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cline x1='0' y1='0' x2='50' y2='50' stroke='black' stroke-opacity='0.2' stroke-width='1.5'/%3E%3Cline x1='100' y1='0' x2='50' y2='50' stroke='black' stroke-opacity='0.2' stroke-width='1.5'/%3E%3C/svg%3E");
-    background-size: 100% 100%;
-    
-    /* Adjusted mask so the lines fade but don't disappear before reaching the tip */
-    -webkit-mask-image: radial-gradient(circle at 50% 50%, transparent 5%, black 40%);
-    mask-image: radial-gradient(circle at 50% 50%, transparent 5%, black 40%);
+    /* This creates the thick border lines along a V-shape */
+    background: #000; 
+    opacity: 0.2;
+    /* The clip-path creates the 2px thick lines */
+    clip-path: polygon(
+        0 0, 50% 50%, 100% 0, 
+        100% 2px, 50% calc(50% + 2px), 0 2px
+    );
+    /* This MASK makes it fade as it reaches the center */
+    -webkit-mask-image: radial-gradient(circle at 50% 50%, transparent 10%, black 80%);
+    mask-image: radial-gradient(circle at 50% 50%, transparent 10%, black 80%);
 }
-
 /* THE SEAL */
 #seal { 
     position: absolute; 
@@ -132,8 +125,7 @@ input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; bo
     <div class="envelope">
         <div class="letter">...</div>
         <div class="envelope-pocket-main"></div>
-        <div class="envelope-lines"></div> 
-        <div class="top-flap"></div>
+        <div class="envelope-lines"></div> <div class="top-flap"></div>
         <div id="seal" onclick="openInvitation()"></div>
     </div>
 </div>
