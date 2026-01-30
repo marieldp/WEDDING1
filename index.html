@@ -20,8 +20,12 @@ body, html { margin: 0; padding: 0; background-color: #e5e0d8; font-family: 'Mon
 
 /* THE ENVELOPE CONTAINER */
 .envelope { 
-    position: relative; width: 90vw; max-width: 450px; height: 300px; 
-    background: #f4f1ed; box-shadow: 0 20px 40px rgba(0,0,0,0.15); 
+    position: relative; 
+    width: 100vw; 
+    height: 60vh; /* Not full height, so it looks like an envelope shape */
+    max-width: none; 
+    background: #f4f1ed; 
+    box-shadow: 0 0 100px rgba(0,0,0,0.3);
 }
 
 /* THE FLAPS (Using your 6938.jpg) */
@@ -221,6 +225,27 @@ let guestData = null;
 
 function openInvitation() {
     const wrapper = document.getElementById('envelope-wrapper');
+    
+    // 1. Immediately start the opening and the exit
+    wrapper.classList.add('open'); 
+    
+    // 2. Instantly start showing the website behind the envelope
+    document.body.classList.add('show-site');
+    document.body.style.overflow = 'auto';
+
+    // 3. Move the envelope out of the way quickly
+    setTimeout(() => {
+        wrapper.classList.add('envelope-exit');
+    }, 100); // 0.1 second delay just to let the flap start 
+
+    // 4. Load the data in the background
+    if (token) {
+        document.getElementById('loading').classList.remove('hidden');
+        checkGuestStatus();
+    } else {
+        document.getElementById('error-msg').classList.remove('hidden');
+    }
+}
     
     // 1. Break the seal and flip the flap
     wrapper.classList.add('open'); 
