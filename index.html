@@ -66,13 +66,23 @@ body, html { margin: 0; padding: 0; background-color: #e5e0d8; font-family: 'Mon
 /* 4. THE SEAL - Sits on the very top */
 #seal {
     position: absolute;
-    top: 60%;
+    top: 60%; /* Matches your new flap tip */
     left: 50%;
     transform: translate(-50%, -50%);
     width: 90px;
     height: 90px;
-    z-index: 999; /* Absolute highest layer */
-    display: block !important;
+    
+    /* THE FIXES */
+    z-index: 9999 !important; /* Forces it above all other layers */
+    display: block !important; /* Ensures it isn't set to 'none' by mistake */
+    visibility: visible !important;
+    pointer-events: auto; /* Makes sure you can still click it */
+}
+
+#seal img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 
