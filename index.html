@@ -20,69 +20,67 @@ body, html { margin: 0; padding: 0; background-color: #e5e0d8; font-family: 'Mon
     background-color: #e5e0d8; perspective: 1200px;
 }
 
-/* THE ENVELOPE - Resizes based on screen width */
+/* THE ENVELOPE CONTAINER */
 .envelope { 
     position: relative; 
-    width: 85vw;           /* Scales with screen width */
-    max-width: 500px;      /* Desktop limit */
-    height: 56.6vw;        /* Keeps 3:2 ratio manually for better support */
-    max-height: 333px;     /* Desktop limit for height */
+    width: 85vw; 
+    max-width: 500px; 
+    height: 56.6vw; 
+    max-height: 333px; 
     background: #ebe7e0; 
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    transition: transform 0.6s ease-in-out;
 }
-/* THE TOP FLAP (The Lid) */
+
+/* THE TOP TRIANGLE (Lid) */
 .top-flap { 
     position: absolute; 
-    top: 0; left: 0; 
-    width: 100%; 
-    height: 50%; /* Meets exactly at the 50% centerline */
+    top: 0; left: 0; width: 100%; height: 50%; 
     z-index: 4;
-    background-image: url('6938.jpg'); 
+    background-image: linear-gradient(rgba(0,0,0,0.03), rgba(0,0,0,0.03)), url('6938.jpg'); 
     background-size: cover;
-    /* Pure Triangle Lid */
     clip-path: polygon(0 0, 100% 0, 50% 100%); 
     transform-origin: top;
     transition: transform 0.8s ease-in-out;
+    /* This creates the 'crease' line at the bottom of the triangle */
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
 }
 
-/* THE FRONT POCKET (The seamless cover) */
-.envelope-front { 
+/* THE FRONT POCKET (V-Notch) */
+.envelope-pocket-main { 
     position: absolute; 
-    top: 0; left: 0; 
-    width: 100%; 
-    height: 100%; /* Covers the ENTIRE envelope area */
+    top: 0; left: 0; width: 100%; height: 100%; 
     z-index: 3;
     background-image: url('6938.jpg'); 
     background-size: cover;
-    /* This shape mimics how a real envelope is folded: 
-       It covers the sides and the bottom, meeting the triangle in the middle. */
+    /* This creates the V-cutout that the top flap sits in */
     clip-path: polygon(0 0, 50% 50%, 100% 0, 100% 100%, 0 100%);
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
 }
 
-/* THE SEAL - Anchored to the center overlap */
+/* THE SEAL */
 #seal { 
     position: absolute; 
     top: 50%; left: 50%; 
-    width: 70px; height: 70px; /* Fixed size works better for alignment */
+    width: 75px; height: 75px; 
     transform: translate(-50%, -50%); 
     z-index: 5; cursor: pointer;
     background: url('seal.png') no-repeat center/contain;
-    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); 
-    transition: opacity 0.3s;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); 
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-/* THE LETTER - Stays inside the 3:2 box */
+/* THE LETTER */
 .letter {
     position: absolute; top: 10%; left: 5%; width: 90%; height: 80%;
-    background: white; z-index: 2;
+    background: white; z-index: 1; 
     display: flex; flex-direction: column; justify-content: center; align-items: center;
-    box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+    box-shadow: 0 0 15px rgba(0,0,0,0.05);
 }
 
 /* ANIMATION STATES */
 .open .top-flap { transform: rotateX(180deg); z-index: 0; }
-.open #seal { opacity: 0; pointer-events: none; }
-.envelope-exit { transform: translateY(110vh); opacity: 0; }
+.open #seal { opacity: 0; transform: translate(-50%, -50%) scale(1.2); pointer-events: none; }
 
 /* MAIN SITE TRANSITION */
 #main-site { 
@@ -105,10 +103,14 @@ input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; bo
 <div id="envelope-wrapper">
     <div class="envelope">
         <div class="letter">
-            <h2 style="font-family: 'Great Vibes'; color: #d4af37; margin: 0;">M & J</h2>
+            <h2 style="font-family: 'Great Vibes'; color: #d4af37; margin: 0; font-size: 1.5rem;">M & J</h2>
+            <p style="font-family: 'Georgia'; font-size: 12px; color: #8b7d6b;">2027</p>
         </div>
-        <div class="envelope-front"></div>
+
+        <div class="envelope-pocket-main"></div>
+
         <div class="top-flap"></div>
+
         <div id="seal" onclick="openInvitation()"></div>
     </div>
 </div>
