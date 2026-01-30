@@ -64,33 +64,37 @@ body, html { margin: 0; padding: 0; background-color: #e5e0d8; font-family: 'Mon
 }
 
 /* 4. THE SEAL - FIXED POSITIONING */
+/* 4. THE SEAL - LOCKED TO THE ENVELOPE */
 #seal {
     position: absolute;
     top: 60%; 
     left: 50%;
-    transform: translate(-50%, -50%);
-    width: 90px;
-    height: 90px;
-    z-index: 9999 !important; /* Forces it above the pocket and flap */
-    display: flex !important;
+    /* This is the most important line to keep it centered */
+    transform: translate(-50%, -50%); 
+    
+    /* Reduced size to fit the envelope proportions better */
+    width: 70px; 
+    height: 70px;
+    
+    z-index: 999; 
+    display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    pointer-events: auto;
 }
 
 #seal img {
+    /* This makes the image fill the 70px box without spilling out */
     width: 100%;
-    height: 100%;
-    object-fit: contain;
-    /* This prevents the "jump" to the top-left on reload */
-    display: block; 
+    height: auto;
+    display: block;
 }
-
 
 #seal:hover {
-    transform: translate(-50%, -50%) scale(1.1); /* Adds a nice "pop" when touched */
+    /* Slight grow effect on hover */
+    transform: translate(-50%, -50%) scale(1.05);
 }
+
 
     /* THE POCKET */
 .envelope-pocket-main { 
