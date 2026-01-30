@@ -14,13 +14,18 @@ body, html { margin: 0; padding: 0; background-color: #e5e0d8; font-family: 'Mon
 /* THE TABLE SURFACE */
 /* THE TABLE SURFACE */
 /* THE TABLE SURFACE */
-#envelope-wrapper { 
-    position: fixed; top: 0; left: 0; width: 100%; height: 100vh; 
-    z-index: 2000; display: flex; justify-content: center; align-items: center; 
-    background-color: #e5e0d8; perspective: 1200px;
+#envelope-wrapper {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100vh;
+    display: flex; /* This centers the envelope */
+    justify-content: center;
+    align-items: center;
+    z-index: 3000;
+    background-color: #e5e0d8;
 }
 
-/* THE ENVELOPE CONTAINER */
+/* THE ENVELOPE - Centered on screen */
 .envelope { 
     position: relative; 
     width: 85vw; 
@@ -29,7 +34,8 @@ body, html { margin: 0; padding: 0; background-color: #e5e0d8; font-family: 'Mon
     max-height: 333px; 
     background: #ebe7e0; 
     box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-    transition: transform 0.6s ease-in-out;
+    display: block;
+    margin: auto; /* Keeps it centered in the flex wrapper */
 }
 
 /* THE TOP TRIANGLE (Lid) */
@@ -37,19 +43,17 @@ body, html { margin: 0; padding: 0; background-color: #e5e0d8; font-family: 'Mon
 /* THE TOP TRIANGLE (Lid) */
 /* THE TOP TRIANGLE (Lid) */
 
-/* THE TOP TRIANGLE */
+/* TOP FLAP - Resetting the shadow for a thinner look */
 .top-flap { 
     position: absolute; 
-    top: 0; left: 0; width: 100%; height: 50%; 
-    z-index: 4;
+    top: 0; left: 0; width: 100%; height: 50.5%; /* 0.5% overlap to hide gaps */
+    z-index: 5;
     background: url('6938.jpg') center/cover;
     clip-path: polygon(0 0, 100% 0, 50% 100%); 
     transform-origin: top;
     transition: transform 0.8s ease-in-out;
-    /* This creates the shadow AND the thin line automatically */
-    filter: drop-shadow(0 2px 1px rgba(0,0,0,0.3));
+    filter: drop-shadow(0 4px 3px rgba(0,0,0,0.2));
 }
-
 /* THE POCKET */
 .envelope-pocket-main { 
     position: absolute; 
@@ -59,14 +63,19 @@ body, html { margin: 0; padding: 0; background-color: #e5e0d8; font-family: 'Mon
     clip-path: polygon(0 0, 50% 50%, 100% 0, 100% 100%, 0 100%);
 }
 
-/* THE "X" LINES - We use one clean div for the lines so they don't get cut off */
+/* THE SEAM LINES - Using a more visible SVG */
 .envelope-lines {
     position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    z-index: 4; /* Sits right under the seal */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 4;
     pointer-events: none;
-    /* This draws the V shape lines over the pocket */
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cline x1='0' y1='0' x2='50%25' y2='50%25' stroke='black' stroke-opacity='0.1' stroke-width='1'/%3E%3Cline x1='100%25' y1='0' x2='50%25' y2='50%25' stroke='black' stroke-opacity='0.1' stroke-width='1'/%3E%3C/svg%3E");
+    /* This SVG draws the lines precisely to the center point */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cline x1='0' y1='0' x2='50%25' y2='50%25' stroke='black' stroke-opacity='0.2' stroke-width='1.5'/%3E%3Cline x1='100%25' y1='0' x2='50%25' y2='50%25' stroke='black' stroke-opacity='0.2' stroke-width='1.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
 /* THE SEAL */
