@@ -11,19 +11,20 @@ body, html { margin: 0; padding: 0; background-color: #e5e0d8; font-family: 'Mon
 
 /* ENVELOPE STYLES */
 
-/* 1. THE WRAPPER (Centered & Fixed) */
 #envelope-wrapper {
     position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 9999;
     background-color: #f4f1ea;
+    margin: 0;
 }
 
-/* 2. THE ENVELOPE */
 .envelope { 
     position: relative; 
     width: 85vw; 
@@ -34,30 +35,30 @@ body, html { margin: 0; padding: 0; background-color: #e5e0d8; font-family: 'Mon
     box-shadow: 0 15px 35px rgba(0,0,0,0.2);
 }
 
-/* 3. THE TOP LINES (Connecting Perfectly) */
 .envelope-lines {
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; 
-    height: 50%; /* MATCHES THE FLAP HEIGHT EXACTLY */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%; /* Covers the whole envelope */
     z-index: 4;
     pointer-events: none;
     
-    /* This SVG draws to the bottom-center (50,100) of THIS 50% height box */
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cline x1='0' y1='0' x2='50' y2='100' stroke='black' stroke-opacity='0.2' stroke-width='3'/%3E%3Cline x1='100' y1='0' x2='50' y2='100' stroke='black' stroke-opacity='0.2' stroke-width='3'/%3E%3C/svg%3E");
+    /* This SVG draws the TOP lines and BOTTOM lines all meeting at 50,50 */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3C!-- Top Lines --%3E%3Cline x1='0' y1='0' x2='50' y2='50' stroke='black' stroke-opacity='0.2' stroke-width='3'/%3E%3Cline x1='100' y1='0' x2='50' y2='50' stroke='black' stroke-opacity='0.2' stroke-width='3'/%3E%3C!-- Bottom Lines --%3E%3Cline x1='0' y1='100' x2='50' y2='50' stroke='black' stroke-opacity='0.2' stroke-width='3'/%3E%3Cline x1='100' y1='100' x2='50' y2='50' stroke='black' stroke-opacity='0.2' stroke-width='3'/%3E%3C/svg%3E");
     background-size: 100% 100%;
 
-    /* The Fading Mask */
-    -webkit-mask-image: linear-gradient(to bottom, black 10%, transparent 95%);
-    mask-image: linear-gradient(to bottom, black 10%, transparent 95%);
+    /* This mask makes the center (where they meet) fade out beautifully */
+    -webkit-mask-image: radial-gradient(circle at 50% 50%, transparent 10%, black 70%);
+    mask-image: radial-gradient(circle at 50% 50%, transparent 10%, black 70%);
 }
 
-/* 4. THE FLAP (The Point) */
 .top-flap {
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; 
-    height: 50%; /* MUST MATCH THE LINES HEIGHT */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50%; /* Exactly half the envelope */
     z-index: 5;
     background: url('6938.jpg') center/cover;
     clip-path: polygon(0 0, 100% 0, 50% 100%);
