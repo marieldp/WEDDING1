@@ -63,8 +63,12 @@ body, html { margin: 0; padding: 0; background-color: #e5e0d8; font-family: 'Mon
 .open .letter { transform: translateY(-60px); }
 
 /* SLIDE DOWN EXIT */
-.envelope-exit { transform: translateY(100vh) rotateX(20deg); opacity: 0; }
-
+.envelope-exit { 
+    transform: translateY(-100vh) scale(1.2); /* Flies UP and away */
+    opacity: 0; 
+    pointer-events: none; /* Allows user to click things behind it immediately */
+    transition: all 0.8s ease-in; /* Faster exit */
+    
 /* MAIN SITE TRANSITION */
 #main-site { 
 opacity: 0; display: none; transition: opacity 1.5s ease;
