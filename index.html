@@ -11,98 +11,67 @@ body, html { margin: 0; padding: 0; background-color: #e5e0d8; font-family: 'Mon
 
 /* ENVELOPE STYLES */
 /* THE TABLE SURFACE */
+/* THE TABLE SURFACE */
 #envelope-wrapper { 
     position: fixed; top: 0; left: 0; width: 100%; height: 100vh; 
     z-index: 2000; display: flex; justify-content: center; align-items: center; 
-    background-color: #e5e0d8; perspective: 1500px;
-    transition: transform 1s ease-in-out 1.2s, opacity 1s ease-in-out 1.2s;
+    background-color: #e5e0d8; perspective: 1200px;
+    transition: transform 0.8s ease-in 0.8s, opacity 0.8s ease-in 0.8s;
 }
 
-/* THE ENVELOPE BODY */
+/* THE ENVELOPE - Responsive Size */
 .envelope { 
     position: relative; 
-    width: 100vw; 
-    max-width: 600px; /* Limits width on desktop so it doesn't look stretched */
-    height: 400px;    /* Fixed height for a classic look */
-    background: #ebe7e0; /* A slightly darker 'inside' color */
-    box-shadow: 0 30px 60px rgba(0,0,0,0.3);
-    overflow: visible; /* Allows the flap to flip UP outside the box */
+    width: 90vw;           /* Uses 90% of screen width */
+    max-width: 500px;      /* Prevents it from getting too huge on PC */
+    aspect-ratio: 3 / 2;   /* Maintains perfect proportions */
+    background: #ebe7e0; 
+    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
 }
 
-/* THE TOP TRIANGLE (The Lid) */
+/* THE TOP TRIANGLE */
 .top-flap { 
-    position: absolute; 
-    top: 0; 
-    width: 100%; 
-    height: 50%; /* Meets exactly in the middle */
-    z-index: 4;
-    background-image: url('6938.jpg'); 
-    background-size: cover;
+    position: absolute; top: 0; width: 100%; height: 50%; z-index: 4;
+    background-image: url('6938.jpg'); background-size: cover;
     clip-path: polygon(0 0, 100% 0, 50% 100%); 
     transform-origin: top;
     transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* THE BOTTOM POCKET (The 'V' Shape) */
+/* THE BOTTOM POCKET - Meets the triangle perfectly */
 .envelope-pocket { 
-    position: absolute; 
-    bottom: 0; 
-    width: 100%; 
-    height: 100%; 
-    z-index: 3;
-    background-image: url('6938.jpg'); 
-    background-size: cover;
-    /* This creates the side and bottom flaps look */
-    clip-path: polygon(0 50%, 50% 50%, 100% 50%, 100% 100%, 0 100%);
-    /* Subtle shadow to show where the top flap sits on the bottom */
-    filter: drop-shadow(0 -2px 5px rgba(0,0,0,0.1));
+    position: absolute; bottom: 0; width: 100%; height: 100%; z-index: 3;
+    background-image: url('6938.jpg'); background-size: cover;
+    /* This shape covers the bottom and sides so no 'letter' peaks through the sides */
+    clip-path: polygon(0 0, 15% 50%, 0 100%, 100% 100%, 100% 50%, 85% 50%, 100% 0, 100% 100%, 0 100%);
+    /* Simplified backup if the one above is too complex: 
+       clip-path: polygon(0 50%, 50% 50%, 100% 50%, 100% 100%, 0 100%); */
 }
 
-/* THE LETTER (Hidden inside) */
-.letter {
-    position: absolute; 
-    top: 10%; 
-    left: 5%; 
-    width: 90%; 
-    height: 80%;
-    background: white; 
-    z-index: 1; 
-    display: flex; 
-    flex-direction: column;
-    justify-content: center; 
-    align-items: center; 
-    box-shadow: 0 0 15px rgba(0,0,0,0.1);
-}
-/* THE WAX SEAL (seal.png) */
+/* THE WAX SEAL - Resizes with envelope */
 #seal { 
-    position: absolute; top: 50%; left: 50%; width: 100px; height: 100px; 
+    position: absolute; top: 50%; left: 50%; 
+    width: 20%; height: auto; aspect-ratio: 1/1; /* Scales with envelope width */
     transform: translate(-50%, -50%); z-index: 5; cursor: pointer;
     background: url('seal.png') no-repeat center; background-size: contain;
     filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4)); 
-    transition: opacity 0.4s ease, transform 0.4s ease;
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-/* THE LETTER INSIDE */
+/* THE LETTER */
 .letter {
-    position: absolute; bottom: 5%; left: 5%; width: 90%; height: 90%;
+    position: absolute; top: 5%; left: 5%; width: 90%; height: 90%;
     background: white; z-index: 1; display: flex; flex-direction: column;
     justify-content: center; align-items: center; 
-    box-shadow: 0 0 10px rgba(0,0,0,0.05);
-    transition: transform 0.8s ease-in-out 0.4s;
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.05);
 }
 
-/* ANIMATION STATES */
+/* ANIMATION */
 .open .top-flap { transform: rotateX(180deg); z-index: 0; }
-.open #seal { opacity: 0; transform: translate(-50%, -50%) scale(1.3); pointer-events: none; }
-.open .letter { transform: translateY(-60px); }
+.open #seal { opacity: 0; transform: translate(-50%, -50%) scale(1.5); pointer-events: none; }
+.envelope-exit { transform: translateY(100vh); opacity: 0; }
 
-/* SLIDE DOWN EXIT */
-.envelope-exit { 
-    transform: translateY(-100vh) scale(1.2); /* Flies UP and away */
-    opacity: 0; 
-    pointer-events: none; /* Allows user to click things behind it immediately */
-    transition: all 0.8s ease-in; /* Faster exit */
-    
+
 /* MAIN SITE TRANSITION */
 #main-site { 
 opacity: 0; display: none; transition: opacity 1.5s ease;
