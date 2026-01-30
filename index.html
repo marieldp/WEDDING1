@@ -12,12 +12,16 @@ body, html { margin: 0; padding: 0; background-color: #e5e0d8; font-family: 'Mon
 /* ENVELOPE STYLES */
 /* THE TABLE SURFACE */
 /* THE TABLE SURFACE */
-#envelope-wrapper { 
-    position: fixed; top: 0; left: 0; width: 100%; height: 100vh; 
-    z-index: 2000; display: flex; justify-content: center; align-items: center; 
-    background-color: #e5e0d8; perspective: 1200px;
-    transition: transform 0.8s ease-in 0.8s, opacity 0.8s ease-in 0.8s;
-}
+<div id="envelope-wrapper">
+    <div class="envelope">
+        <div class="letter">
+            <h2 style="font-family: 'Great Vibes'; color: #d4af37; margin: 0;">M & J</h2>
+        </div>
+        <div class="envelope-pocket"></div>
+        <div class="top-flap"></div>
+        <div id="seal" onclick="openInvitation()"></div>
+    </div>
+</div>
 
 /* THE ENVELOPE - Responsive Size */
 .envelope { 
